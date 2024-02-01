@@ -1,2 +1,3 @@
-# light-show-guard-plugin
-FPP Plugin for Light Show Guard
+# fpp-plugin-Template
+Template plugin for FPP Plugin developers
+
