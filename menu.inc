@@ -39,7 +39,7 @@ $menuEntries = Array(
 	Array(
 		'text' => 'Template - Home',
 		'type' => 'help',
-		'page' => 'https://github.com/FalconChristmas/fpp-plugin-Template',
+		'page' => 'https://github.com/almostengr/light-show-guard-plugin',
 		'wrap' => 1
 	),
 	Array(

@@ -1,17 +1,17 @@
 {
-	"repoName": "fpp-plugin-Template",
-	"name": "Template Plugin for FPP Plugin developers",
-	"author": "John Doe (jdoe)",
-	"description": "This template plugin is designed to make it easier for plugin authors to create new FPP Plugins.  You can manually clone the git repository or install the Template Plugin and then go to the plugin's config page and use the form to copy the template into a new plugin directory.",
-	"homeURL": "https://github.com/FalconChristmas/fpp-plugin-Template",
-	"srcURL": "https://github.com/FalconChristmas/fpp-plugin-Template.git",
-	"bugURL": "https://github.com/FalconChristmas/fpp-plugin-Template/issues",
+	"repoName": "light-show-guard-plugin",
+	"name": "Light Show Guard plugin for Falcon Pi Player",
+	"author": "Kenny Robinson (almostengr)",
+	"description": "This plugin is designed to interact with your website and allow remote control of your light show using the Light Show Guard website.",
+	"homeURL": "https://github.com/almostengr/light-show-guard-plugin",
+	"srcURL": "https://github.com/almostengr/light-show-guard-plugin.git",
+	"bugURL": "https://github.com/almostengr/light-show-guard-plugin/issues",
 	"allowUpdates": 1,
 	"versions": [
 		{
-			"minFPPVersion": "2.0",
+			"minFPPVersion": "6.0",
 			"maxFPPVersion": "0",
-			"branch": "master",
+			"branch": "main",
 			"sha": "",
 			"dependencies": {
 			    "plugins": [
