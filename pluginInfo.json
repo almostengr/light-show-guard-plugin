@@ -1,11 +1,11 @@
 {
-	"repoName": "light-show-guard-plugin",
+	"repoName": "light-show-guard-fpp",
 	"name": "Light Show Guard plugin for Falcon Pi Player",
 	"author": "Kenny Robinson (almostengr)",
 	"description": "This plugin is designed to interact with your website and allow remote control of your light show using the Light Show Guard website.",
-	"homeURL": "https://github.com/almostengr/light-show-guard-plugin",
-	"srcURL": "https://github.com/almostengr/light-show-guard-plugin.git",
-	"bugURL": "https://github.com/almostengr/light-show-guard-plugin/issues",
+	"homeURL": "https://github.com/almostengr/light-show-guard-fpp",
+	"srcURL": "https://github.com/almostengr/light-show-guard-fpp.git",
+	"bugURL": "https://github.com/almostengr/light-show-guard-fpp/issues",
 	"allowUpdates": 1,
 	"versions": [
 		{

@@ -18,36 +18,12 @@ $menuEntries = Array(
 		'page' => 'status.php',
 		'wrap' => 1
 	),
-#	Array(
-#		'text' => 'Template - Content Setup',
-#		'type' => 'content',
-#		'page' => 'content.php',
-#		'wrap' => 1
-#	),
-#	Array(
-#		'text' => 'Template - Output',
-#		'type' => 'output',
-#		'page' => 'output.php',
-#		'wrap' => 1
-#	),
-	Array(
-		'text' => 'Template - Help',
-		'type' => 'help',
-		'page' => 'help/help.php',
-		'wrap' => 1
-	),
 	Array(
 		'text' => 'Template - Home',
 		'type' => 'help',
-		'page' => 'https://github.com/almostengr/light-show-guard-plugin',
+		'page' => 'https://github.com/almostengr/light-show-guard-fpp',
 		'wrap' => 1
 	),
-	Array(
-		'text' => 'Template - About',
-		'type' => 'help',
-		'page' => 'about.php',
-		'wrap' => 1
-	)
 );
 
 ##############################################################################

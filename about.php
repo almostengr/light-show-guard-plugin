@@ -7,8 +7,8 @@
                 <br />
                 Kenny Robinson (almostengr)<br />
                 <br />
-                <a href='https://github.com/almostengr/light-show-guard-plugin'>Git Repository</a><br>
-                <a href='https://github.com/almostengr/light-show-guard-plugin/issues'>Bug Reporter</a><br>
+                <a href='https://github.com/almostengr/light-show-guard-fpp'>Git Repository</a><br>
+                <a href='https://github.com/almostengr/light-show-guard-fpp/issues'>Bug Reporter</a><br>
                 <br />
             </div>
         </div>
