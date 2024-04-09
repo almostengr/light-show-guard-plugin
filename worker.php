@@ -1,6 +1,5 @@
 <?php
 
-include_once "/opt/fpp/www/common.php";
 include_once "common.php";
 
 define("DEFAULT_DELAY", 2);
@@ -16,7 +15,7 @@ function exponentialBackoffSleep($attempt)
 $attempt = 0;
 while (true) {
     try {
-        $apiKey = getSetting("LSG_API_KEY");
+        $apiKey = lsgReadSetting(LSG_API_KEY);
         if (empty($apiKey)) {
             throw new Exception("API key setting is not saved");
         }
@@ -40,14 +39,20 @@ while (true) {
         $result = httpRequest(GUARD_API_BASE_URL . "/shows", "PUT", $postData, $guardHeaders);
 
         $insertCommand = "Insert Playlist After Current";
-        if ($result['shutdown'] === true || $result['restart'] === true) {
-            $playlistName = $result['shutdown'] === true ? "Shutdown" : "Restart";
-            executeFppCommand($insertCommand, array($playlistName, "-1", "-1", "false"));
-        } elseif (!empty($result['next_song'])) {
+        // if ($result['shutdown'] === true || $result['restart'] === true) {
+        //     $playlistName = $result['shutdown'] === true ? "Shutdown" : "Restart";
+        //     executeFppCommand($insertCommand, array($playlistName, "-1", "-1", "false"));
+        // } elseif (!empty($result['next_song'])) {
+        //     $nextSong = $result['next_song'];
+        //     $delay = $status['delay'] ?? DEFAULT_DELAY;
+        //     sleep($delay);
+        //     executeFppCommand($insertCommand, array($nextSong, "-1", "-1", "false"));
+
+        if (!empty($result['next_song'])) {
             $nextSong = $result['next_song'];
             $delay = $status['delay'] ?? DEFAULT_DELAY;
-            sleep($delay);
             executeFppCommand($insertCommand, array($nextSong, "-1", "-1", "false"));
+            sleep($delay);
         } else {
             sleep(IDLE_DELAY);
         }
