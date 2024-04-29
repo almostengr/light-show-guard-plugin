@@ -1,8 +1,9 @@
-# Light Show Guard
+# Show Pulse Plugin for Falcon Pi Player
 
-Light Show Guard Falcon Pi Player Plugin
+Show Pulse plugin allows you to see and remotely controller what happens with your light show. This 
+plugin is designed to work with Falcon Pi Player.
 
 ## Additional Information
 
 More information about this project, can be found at 
-[https://thealmostengineer.com/projects/light-show-guard/](https://thealmostengineer.com/projects/light-show-guard/).
+[https://showpulse.rhtservices.net](https://showpulse.rhtservices.net).

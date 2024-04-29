@@ -15,13 +15,13 @@ $menuEntries = Array(
 	Array(
 		'text' => 'Template - Status',
 		'type' => 'status',
-		'page' => 'status.php',
+		'page' => 'app/settings.php',
 		'wrap' => 1
 	),
 	Array(
 		'text' => 'Template - Home',
 		'type' => 'help',
-		'page' => 'https://github.com/almostengr/light-show-guard-fpp',
+		'page' => 'https://github.com/almostengr/show-pulse-fpp',
 		'wrap' => 1
 	),
 );

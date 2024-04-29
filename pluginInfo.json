@@ -1,11 +1,11 @@
 {
-	"repoName": "light-show-guard-fpp",
-	"name": "Light Show Guard plugin for Falcon Pi Player",
+	"repoName": "show-pulse-fpp",
+	"name": "Show Pulse plugin for Falcon Pi Player",
 	"author": "Kenny Robinson (almostengr)",
-	"description": "This plugin is designed to interact with your website and allow remote control of your light show using the Light Show Guard website.",
-	"homeURL": "https://github.com/almostengr/light-show-guard-fpp",
-	"srcURL": "https://github.com/almostengr/light-show-guard-fpp.git",
-	"bugURL": "https://github.com/almostengr/light-show-guard-fpp/issues",
+	"description": "This plugin is designed to interact with your website and allow remote control of your light show using the Show Pulse website.",
+	"homeURL": "https://github.com/almostengr/show-pulse-fpp",
+	"srcURL": "https://github.com/almostengr/show-pulse-fpp.git",
+	"bugURL": "https://github.com/almostengr/show-pulse-fpp/issues",
 	"allowUpdates": 1,
 	"versions": [
 		{
@@ -15,16 +15,10 @@
 			"sha": "",
 			"dependencies": {
 			    "plugins": [
-					"fpp-plugin-CoolPlugin1",
-					"fpp-plugin-CoolPlugin2"
 				],
 			    "packages": [
-					"system-package-name1",
-					"system-package-name2"
 				],
 				"scripts": [
-					"Control/script-repository-script1",
-					"PixelOverlay/script-repository-script2"
 				]
 			}
 		}

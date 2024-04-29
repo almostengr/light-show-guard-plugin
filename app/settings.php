@@ -1,64 +1,24 @@
-<?php
-include_once "common.php";
-?>
 <div class="container mt-5">
     <?php
+    include_once "ShowPulseSettingForm.php";
 
-    $latitude = GetSettingValue('latitude');
-    $longitude = GetSettingValue('longitude');
-    $apiKey = lsgReadSetting(LSG_API_KEY);
-    $checkDelay = lsgReadSetting('check_delay');
-    $selectedPlaylist = lsgReadSetting('playlist');
+    $settingForm = new ShowPulseSettingForm();
+    $result = $settingForm->save();
 
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
-        $apiKey = trim($_POST["api_key"]);
-        $checkDelay = trim($_POST["check_delay"]);
-        $selectedPlaylist = $_POST["playlist"];
-
-        lsgSaveSetting(LSG_API_KEY, $apiKey);
-        lsgSaveSetting("CHECK_DELAY", $checkDelay);
-        lsgSaveSetting("PLAYLIST", $selectedPlaylist);
-
-        $playlistDirectory = GetDirSetting("playlists");
-        $playlistFilePath = file_get_contents($playlistDirectory . "/" . $selectedPlaylist);
-
-        try {
-            $showRequestDto = array(
-                "latitude" => $latitude,
-                "longitude" => $longitude,
-                "playlist" => file_get_contents($playlistFilePath)
-            );
-
-            $url = GUARD_API_BASE_URL . "/shows";
-
-            $requestJson = json_encode($showRequestDto);
-            $guardHeaders = array(
-                "Content-Type: application/json",
-                "Authorization: Bearer $apiKey"
-            );
-
-            $repsonse = httpRequest($url, "PUT", $requestJson, $guardHeaders);
+    if ($result !== null) {
+        if ($result['success']) {
             ?>
             <div class="alert alert-success" role="alert">
                 Settings updated successfully.
             </div>
             <?php
-        } catch (Exception $e) {
+        } else {
             ?>
             <div class="alert alert-danger" role="alert">
-                <?= $e->getMessage(); ?>
+                <?php echo $result['message']; ?>
             </div>
             <?php
         }
-    }
-
-    if (empty($latitude) || empty($longitude)) {
-        ?>
-        <div class="alert alert-warning" role="alert">
-            Latitude and longitude are required. Please enter this under
-            <a href="/settings.php#settings-system">FPP Settings</a>.
-        </div>
-        <?php
     }
     ?>
 
@@ -68,7 +28,7 @@ include_once "common.php";
             <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                 <div class="form-group">
                     <label for="api_key">API Key</label>
-                    <input type="text" class="form-control" id="api_key" name="api_key" value="<?= $apiKey; ?>" required>
+                    <input type="text" class="form-control" id="api_key" name="api_key" value="<?= $settingForm->getApiKey(); ?>" required>
                     <small class="form-text text-muted">
                         Enter your API Key. You can get a key from the
                         <a href="https://guard.rhtservices.net" target="_blank">Light Show Guard website</a>.
@@ -90,7 +50,7 @@ include_once "common.php";
                         <?php
                         $playlists = scandir(GetDirSetting("playlists"));
                         foreach ($playlist as $playlists) {
-                            $selected = $selectedPlaylist == $playlist ? "selected" : "";
+                            $selected = $settingForm->getPlaylist() === $playlist ? "selected" : "";
                             ?>
                             <option value="<?= $playlist ?>" <?= $selected; ?>>
                                 <?= $playlist ?>

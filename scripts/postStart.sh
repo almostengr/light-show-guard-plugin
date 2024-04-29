@@ -1,5 +1,5 @@
 #!/bin/sh
 
-echo "Running fpp-plugin-Template PostStart Script"
+echo "Running Show Pulse PostStart Script"
 
-/usr/bin/php /home/fpp/media/plugins/showpulse/worker.php &
+/usr/bin/php /home/fpp/media/plugins/showpulse/app/ShowPulseWorker.php &
