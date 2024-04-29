@@ -1,5 +1,8 @@
 <?php
 
+// namespace App;
+namespace Almostengr\Showpulsefpp;
+
 include_once "/opt/fpp/www/common.php";
 
 abstract class ShowPulseBase

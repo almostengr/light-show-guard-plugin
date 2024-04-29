@@ -1,5 +1,8 @@
 <?php
 
+// namespace App;
+namespace Almostengr\Showpulsefpp;
+
 include_once "ShowPulseBase.php";
 
 define("SHORT_DELAY", 5);

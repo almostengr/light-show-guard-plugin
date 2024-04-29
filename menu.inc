@@ -15,7 +15,7 @@ $menuEntries = Array(
 	Array(
 		'text' => 'Template - Status',
 		'type' => 'status',
-		'page' => 'app/settings.php',
+		'page' => 'src/settings.php',
 		'wrap' => 1
 	),
 	Array(

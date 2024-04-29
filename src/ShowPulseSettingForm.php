@@ -1,5 +1,8 @@
 <?php
 
+// namespace App;
+namespace Almostengr\Showpulsefpp;
+
 final class ShowPulseSettingForm extends ShowPulseBase
 {
     public function save()
