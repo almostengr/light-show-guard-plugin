@@ -1,5 +1,6 @@
 <div class="container mt-5">
     <?php
+    
     include_once "ShowPulseSettingForm.php";
 
     $settingForm = new ShowPulseSettingForm();
@@ -26,9 +27,16 @@
     <div class="row">
         <div class="col-md-6">
             <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                <!-- <div class="form-group">
+                    <label for="api_key">Environment</label>
+                    <input type="text" class="form-control" id="environment" name="environment" value="<?= $settingForm->readSetting("ENV"); ?>" required>
+                    <small class="form-text text-muted">
+                        Enter the environment you want to use. Production is the default.
+                    </small>
+                </div> -->
                 <div class="form-group">
                     <label for="api_key">API Key</label>
-                    <input type="text" class="form-control" id="api_key" name="api_key" value="<?= $settingForm->getApiKey(); ?>" required>
+                    <input type="text" class="form-control" id="api_key" name="api_key" value="<?= $settingForm->getWebsiteApiKey(); ?>" required>
                     <small class="form-text text-muted">
                         Enter your API Key. You can get a key from the
                         <a href="https://guard.rhtservices.net" target="_blank">Light Show Guard website</a>.

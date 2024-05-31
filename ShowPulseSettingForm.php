@@ -1,8 +1,5 @@
 <?php
 
-// namespace App;
-namespace Almostengr\Showpulsefpp;
-
 final class ShowPulseSettingForm extends ShowPulseBase
 {
     public function save()
@@ -21,7 +18,7 @@ final class ShowPulseSettingForm extends ShowPulseBase
             $playlistDirectory = GetDirSetting("playlists");
             $playlistJson = file_get_contents($playlistDirectory . "/" . $selectedPlaylist);
 
-            $url = $this->webUrl("song_options/playeradd");
+            $url = $this->websiteUrl("song_options/playeradd");
             $headers = $this->getWebsiteAuthorizationHeaders();
             $this->httpRequest($url, "POST", $playlistJson, $headers);
 

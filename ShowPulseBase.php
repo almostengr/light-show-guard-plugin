@@ -1,16 +1,12 @@
 <?php
 
-// namespace App;
-namespace Almostengr\Showpulsefpp;
-
-include_once "/opt/fpp/www/common.php";
+require_once "/opt/fpp/www/common.php";
 
 abstract class ShowPulseBase
 {
-    protected function webUrl($route = null)
+    protected function websiteUrl($route = null)
     {
-        $url = "https://showpulse.rhtservices.net/";
-
+        $url = "https://showpulse.rhtservices.net/api/";
         if (!is_null($route)) {
             $url .= $route;
         }
@@ -20,7 +16,7 @@ abstract class ShowPulseBase
 
     protected function fppUrl($route = null)
     {
-        $url = "http://127.0.0.1/";
+        $url = "http://127.0.0.1/api/";
         if (!is_null($route)) {
             $url .= $route;
         }
@@ -30,7 +26,7 @@ abstract class ShowPulseBase
 
     protected function pluginName()
     {
-        return "show_sync";
+        return "show_pulse";
     }
 
     protected function httpRequest($url, $method = "GET", $data = null, $headers = array())
@@ -39,6 +35,7 @@ abstract class ShowPulseBase
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        $method = strtoupper($method);
         if ($method === "POST" || $method === "PUT") {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         }
@@ -57,12 +54,13 @@ abstract class ShowPulseBase
         if ($response !== null) {
             return json_decode($response, true);
         }
+
         return null;
     }
 
     protected function saveSetting($key, $value)
     {
-        if (empty($key)) {
+        if (empty($key) || is_null($key)) {
             throw new Exception("Setting key was not specified");
         }
 
@@ -74,14 +72,14 @@ abstract class ShowPulseBase
 
     protected function readSetting($key)
     {
-        if (empty($key)) {
+        if (empty($key) || is_null($key)) {
             return false;
         }
 
         return ReadSettingFromFile($key, $this->pluginName()) ?? false;
     }
 
-    protected function getApiKey()
+    protected function getWebsiteApiKey()
     {
         $value = $this->readSetting("API_KEY");
         if ($value) {
@@ -93,7 +91,7 @@ abstract class ShowPulseBase
 
     protected function getWebsiteAuthorizationHeaders()
     {
-        $apiKey = $this->getApiKey();
+        $apiKey = $this->getWebsiteApiKey();
         return array("Authorization: Bearer $apiKey");
     }
 
@@ -110,5 +108,11 @@ abstract class ShowPulseBase
         if ($result === false) {
             throw new Exception("Unable to execute FPP command");
         }
+    }
+
+    protected function logError($data)
+    {
+        $currentDateTime = date('Y-m-d h:i:s A', time());
+        error_log("$currentDateTime: $data");
     }
 }
