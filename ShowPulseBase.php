@@ -4,9 +4,16 @@ require_once "/opt/fpp/www/common.php";
 
 abstract class ShowPulseBase
 {
+    public function useBetaEnvironment()
+    {
+        return $this->readSetting("ENVIRONMENT") === "BETA";
+    }
+
     protected function websiteUrl($route = null)
     {
-        $url = "https://showpulse.rhtservices.net/api/";
+        $url = $this->useBetaEnvironment() ?
+            "https://bshowpulse.rhtservices.net/api/" : "https://showpulse.rhtservices.net/api/";
+
         if (!is_null($route)) {
             $url .= $route;
         }
@@ -58,7 +65,7 @@ abstract class ShowPulseBase
         return null;
     }
 
-    protected function saveSetting($key, $value)
+    public function saveSetting($key, $value)
     {
         if (empty($key) || is_null($key)) {
             throw new Exception("Setting key was not specified");
@@ -70,7 +77,7 @@ abstract class ShowPulseBase
         WriteSettingToFile($key, $value, $this->pluginName());
     }
 
-    protected function readSetting($key)
+    public function readSetting($key)
     {
         if (empty($key) || is_null($key)) {
             return false;
@@ -79,14 +86,15 @@ abstract class ShowPulseBase
         return ReadSettingFromFile($key, $this->pluginName()) ?? false;
     }
 
-    protected function getWebsiteApiKey()
+    public function getWebsiteApiKey()
     {
-        $value = $this->readSetting("API_KEY");
+        $value = $this->useBetaEnvironment() ? $this->readSetting("BETA_API_KEY") : $this->readSetting("API_KEY");
+
         if ($value) {
             return $value;
         }
 
-        throw new Exception("API Key has not been entered.");
+        throw new Exception("API Key has not been entered for the selected environment.");
     }
 
     protected function getWebsiteAuthorizationHeaders()
@@ -106,13 +114,13 @@ abstract class ShowPulseBase
         $result = $this->httpRequest($url, "GET", $args);
 
         if ($result === false) {
-            throw new Exception("Unable to execute FPP command");
+            throw new Exception("Unable to execute FPP command.");
         }
     }
 
     protected function logError($data)
     {
-        $currentDateTime = date('Y-m-d h:i:s A', time());
+        $currentDateTime = date('Y-m-d h:i:s A');
         error_log("$currentDateTime: $data");
     }
 }

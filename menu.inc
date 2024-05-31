@@ -13,15 +13,9 @@
 
 $menuEntries = Array(
 	Array(
-		'text' => 'Template - Status',
+		'text' => 'Show Pulse Settings',
 		'type' => 'status',
-		'page' => 'src/settings.php',
-		'wrap' => 1
-	),
-	Array(
-		'text' => 'Template - Home',
-		'type' => 'help',
-		'page' => 'https://github.com/almostengr/show-pulse-fpp',
+		'page' => 'ShowPulseSettingForm.php',
 		'wrap' => 1
 	),
 );

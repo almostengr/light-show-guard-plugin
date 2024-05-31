@@ -1,6 +1,6 @@
 <?php
 
-include_once "ShowPulseBase.php";
+require_once "ShowPulseBase.php";
 
 final class StatusDto
 {
