@@ -58,5 +58,6 @@ final class StatusDtoTest extends TestCase
         $dto = new StatusDto(0, "test.fseq", "playing");
 
         $this->assertEquals("test", $dto->song_title);
+        $this->assertEquals("test", $dto->song_title);
     }
 }
