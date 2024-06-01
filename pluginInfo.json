@@ -1,8 +1,8 @@
 {
 	"repoName": "show-pulse-fpp",
-	"name": "Show Pulse plugin for Falcon Pi Player",
+	"name": "Show Pulse",
 	"author": "Kenny Robinson (almostengr)",
-	"description": "This plugin is designed to interact with your website and allow remote control of your light show using the Show Pulse website.",
+	"description": "Allow visitors and yourself to monitor and remotely control your light show using the Light Show Pulse website.",
 	"homeURL": "https://github.com/almostengr/show-pulse-fpp",
 	"srcURL": "https://github.com/almostengr/show-pulse-fpp.git",
 	"bugURL": "https://github.com/almostengr/show-pulse-fpp/issues",
