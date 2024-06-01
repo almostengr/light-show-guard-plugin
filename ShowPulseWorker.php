@@ -1,14 +1,17 @@
 <?php
 
+namespace App;
+use Exception;
+
 require_once "ShowPulseBase.php";
 
 final class StatusDto
 {
-    private $warnings;
-    private $sequence;
-    private $song_title;
-    private $song_artist;
-    private $status;
+    public $warnings;
+    public $sequence;
+    public $song_title;
+    public $song_artist;
+    public $status;
 
     public function __construct($hasErrors, $sequence, $status)
     {
@@ -185,7 +188,7 @@ final class ShowPulseWorker extends ShowPulseBase
 }
 
 $worker = new ShowPulseWorker();
-while (true) {
+while ($testing) {
     try {
         $worker->getWebsiteApiKey();
         $worker->getFppStatus();

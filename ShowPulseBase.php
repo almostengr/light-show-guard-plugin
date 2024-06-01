@@ -1,6 +1,10 @@
 <?php
 
-require_once "/opt/fpp/www/common.php";
+namespace App;
+
+$testing = false;
+$commonFile = $testing ? "/opt/fpp/www/common.php" : __DIR__ . "/tests/OptFppWwwCommonMock.php";
+require_once $commonFile;
 
 abstract class ShowPulseBase
 {
@@ -118,7 +122,7 @@ abstract class ShowPulseBase
         }
     }
 
-    protected function logError($data)
+    public function logError($data)
     {
         $currentDateTime = date('Y-m-d h:i:s A');
         error_log("$currentDateTime: $data");

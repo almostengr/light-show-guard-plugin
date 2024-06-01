@@ -1,5 +1,8 @@
 <?php
 
+namespace App;
+use Exception;
+
 require_once "ShowPulseBase.php";
 
 final class ShowPulseSettingForm extends ShowPulseBase
