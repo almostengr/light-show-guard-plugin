@@ -8,7 +8,18 @@ plugin is designed to work with Falcon Pi Player.
 To install the plugin to your Falcon Pi Player, go to the Plugins section of the FPP. Then copy and 
 paste the URL below to install the plugin.
 
-[https://raw.githubusercontent.com/remote-falcon/remote-falcon-plugin/master/pluginInfo.json](https://raw.githubusercontent.com/remote-falcon/remote-falcon-plugin/master/pluginInfo.json)
+```
+https://raw.githubusercontent.com/remote-falcon/remote-falcon-plugin/master/pluginInfo.json
+```
+
+## Setup 
+
+* Perform steps in Install Plugin section.
+* Create an account on the Light Show Pulse website.
+* Generate an API key from the "My Shows" page. 
+* Copy and paste the API key from the website, into the plugin settings page on your primary or main Falcon Pi Player controller. 
+* Save settings.
+
 
 ## Additional Information
 

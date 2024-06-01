@@ -1,8 +1,8 @@
 {
 	"repoName": "show-pulse-fpp",
-	"name": "Show Pulse",
+	"name": "Light Show Pulse",
 	"author": "Kenny Robinson (almostengr)",
-	"description": "Allow visitors and yourself to monitor and remotely control your light show using the Light Show Pulse website.",
+	"description": "Allow visitors to control your light show as a jukebox. Allows you to monitor and control your show remotely. All from the Light Show Pulse website.",
 	"homeURL": "https://github.com/almostengr/show-pulse-fpp",
 	"srcURL": "https://github.com/almostengr/show-pulse-fpp.git",
 	"bugURL": "https://github.com/almostengr/show-pulse-fpp/issues",
