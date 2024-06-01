@@ -37,4 +37,4 @@ jobs:
     #   run: composer run-script test
 
     - name: Run PHPUnit tests
-      run: vendor/bin/phpunit --coverage-text --colors=never
+      run: vendor/bin/phpunit --colors=never
