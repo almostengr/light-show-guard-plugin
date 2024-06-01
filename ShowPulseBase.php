@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+use Exception;
 
 $testing = false;
 $commonFile = $testing ? "/opt/fpp/www/common.php" : __DIR__ . "/tests/OptFppWwwCommonMock.php";

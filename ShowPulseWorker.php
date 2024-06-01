@@ -1,6 +1,7 @@
 <?php
 
 namespace App;
+
 use Exception;
 
 require_once "ShowPulseBase.php";
@@ -48,6 +49,11 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->nextJukeboxRequest = null;
     }
 
+    public function getAttemptCount()
+    {
+        return $this->attemptCount;
+    }
+
     public function getFppStatus()
     {
         $url = $this->fppUrl("fppd/status");
@@ -82,8 +88,7 @@ final class ShowPulseWorker extends ShowPulseBase
     {
         $defaultDelay = 2;
         $maxDelay = 15;
-        $delay = min(pow(2, $this->attemptCount) * $defaultDelay, $maxDelay);
-        sleep($delay);
+        return min(pow(2, $this->attemptCount) * $defaultDelay, $maxDelay);
     }
 
     public function resetAttemptCount()
@@ -93,7 +98,9 @@ final class ShowPulseWorker extends ShowPulseBase
 
     public function increaseAttemptCount()
     {
-        $this->attemptCount = $this->attemptCount < 5 ? $this->attemptCount++ : $this->attemptCount;
+        if ($this->attemptCount < 5) {
+            $this->attemptCount++;
+        }
     }
 
     public function sleepShortValue()
@@ -180,25 +187,12 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->lastSequence = $this->fppStatus->current_sequence;
     }
 
-    public function sleepDelay()
+    public function calculateSleepTime()
     {
-        $seconds = $this->fppStatus->status_name === "idle" ? $this->sleepLongValue() : $this->sleepShortValue();
-        sleep($seconds);
-    }
-}
+        if (is_null($this->fppStatus)) {
+            return $this->sleepShortValue();
+        }
 
-$worker = new ShowPulseWorker();
-while ($testing) {
-    try {
-        $worker->getWebsiteApiKey();
-        $worker->getFppStatus();
-        $worker->postShowStatus();
-        $worker->getNextRequest();
-        $worker->sleepDelay();
-        $worker->resetAttemptCount();
-    } catch (Exception $e) {
-        $worker->logError($e->getMessage());
-        $worker->exponentialBackoffSleep();
-        $worker->increaseAttemptCount();
+        return $this->fppStatus->status_name === "idle" ? $this->sleepLongValue() : $this->sleepShortValue();
     }
 }
