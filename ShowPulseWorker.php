@@ -61,7 +61,7 @@ final class ShowPulseWorker extends ShowPulseBase
     public function logFailure($exceptionMessage)
     {
         if ($this->isBelowMaxFailureThreshold()) {
-            $message = $exceptionMessage . " (Failure " . $this->failureCount . "/" > $this->maxFailuresAllowed() . ")";
+            $message = $exceptionMessage . " (Failure " . $this->failureCount . "/" > $this->maxFailuresAllowedValue() . ")";
             $this->logError($message);
         }
     }
@@ -107,14 +107,14 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->failureCount = 0;
     }
 
-    public function maxFailuresAllowed()
+    public function maxFailuresAllowedValue()
     {
         return 5;
     }
 
     public function isBelowMaxFailureThreshold()
     {
-        return $this->failureCount < $this->maxFailuresAllowed();
+        return $this->failureCount < $this->maxFailuresAllowedValue();
     }
 
     public function increaseFailureCount()
@@ -137,8 +137,7 @@ final class ShowPulseWorker extends ShowPulseBase
     public function postStatus()
     {
         if (
-            $this->lastUpdated < $this->fifteenMinutesAgo() &&
-            $this->lastSequence === $this->fppStatus->current_sequence &&
+            ($this->lastSequence === $this->fppStatus->current_sequence && $this->lastUpdated < $this->fifteenMinutesAgo()) ||
             $this->isTestingOrOfflinePlaylist()
         ) {
             $this->statusResponse = null;

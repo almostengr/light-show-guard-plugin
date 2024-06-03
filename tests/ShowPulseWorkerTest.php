@@ -67,7 +67,7 @@ final class ShowPulseWorkerTest extends TestCase
     {
         $worker = new ShowPulseWorker();
 
-        $failures = $worker->maxFailuresAllowed();
+        $failures = $worker->maxFailuresAllowedValue();
 
         $this->assertEquals(5, $failures);
     }
