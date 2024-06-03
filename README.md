@@ -9,7 +9,7 @@ To install the plugin to your Falcon Pi Player, go to the Plugins section of the
 paste the URL below to install the plugin.
 
 ```
-https://github.com/almostengr/show-pulse-fpp/blob/initial/pluginInfo.json
+https://github.com/almostengr/show-pulse-fpp/master/pluginInfo.json
 ```
 
 ## Setup 
