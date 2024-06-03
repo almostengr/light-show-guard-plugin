@@ -37,21 +37,29 @@ final class StatusDto
 final class ShowPulseWorker extends ShowPulseBase
 {
     private $fppStatus;
-    private $attemptCount;
+    private $failureCount;
     private $lastSequence;
     private $nextJukeboxRequest;
 
     public function __construct()
     {
-        $this->attemptCount = 0;
+        $this->failureCount = 0;
         $this->fppStatus = null;
         $this->lastSequence = null;
         $this->nextJukeboxRequest = null;
     }
 
-    public function getAttemptCount()
+    public function getFailureCount()
     {
-        return $this->attemptCount;
+        return $this->failureCount;
+    }
+
+    public function logFailure($exceptionMessage)
+    {
+        if ($this->isBelowMaxFailureThreshold()) {
+            $message = $exceptionMessage . " (Failure " . $this->failureCount . "/" > $this->maxFailuresAllowed() . ")";
+            $this->logError($message);
+        }
     }
 
     public function getFppStatus()
@@ -88,18 +96,28 @@ final class ShowPulseWorker extends ShowPulseBase
     {
         $defaultDelay = 2;
         $maxDelay = 15;
-        return min(pow(2, $this->attemptCount) * $defaultDelay, $maxDelay);
+        return min(pow(2, $this->failureCount) * $defaultDelay, $maxDelay);
     }
 
-    public function resetAttemptCount()
+    public function resetFailureCount()
     {
-        $this->attemptCount = 0;
+        $this->failureCount = 0;
     }
 
-    public function increaseAttemptCount()
+    public function maxFailuresAllowed()
     {
-        if ($this->attemptCount < 5) {
-            $this->attemptCount++;
+        return 5;
+    }
+
+    public function isBelowMaxFailureThreshold()
+    {
+        return $this->failureCount < $this->maxFailuresAllowed();
+    }
+    
+    public function increaseFailureCount()
+    {
+        if ($this->isBelowMaxFailureThreshold()) {
+            $this->failureCount++;
         }
     }
 

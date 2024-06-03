@@ -13,31 +13,31 @@ final class ShowPulseWorkerTest extends TestCase
     public function testResetAttemptCount()
     {
         $worker = new ShowPulseWorker();
-        $worker->resetAttemptCount();
+        $worker->resetFailureCount();
 
-        $this->assertEquals(0, $worker->getAttemptCount());
+        $this->assertEquals(0, $worker->getFailureCount());
     }
 
     public function testIncreaseAttemptCountTwoTimes()
     {
         $worker = new ShowPulseWorker();
-        $worker->increaseAttemptCount();
-        $worker->increaseAttemptCount();
+        $worker->increaseFailureCount();
+        $worker->increaseFailureCount();
 
-        $this->assertEquals(2, $worker->getAttemptCount());
+        $this->assertEquals(2, $worker->getFailureCount());
     }
 
     public function testIncreaseAttemptCountSixTimes()
     {
         $worker = new ShowPulseWorker();
-        $worker->increaseAttemptCount();
-        $worker->increaseAttemptCount();
-        $worker->increaseAttemptCount();
-        $worker->increaseAttemptCount();
-        $worker->increaseAttemptCount();
-        $worker->increaseAttemptCount();
+        $worker->increaseFailureCount();
+        $worker->increaseFailureCount();
+        $worker->increaseFailureCount();
+        $worker->increaseFailureCount();
+        $worker->increaseFailureCount();
+        $worker->increaseFailureCount();
 
-        $this->assertEquals(5, $worker->getAttemptCount());
+        $this->assertEquals(5, $worker->getFailureCount());
     }
 
     public function testSleepShortValue()
@@ -61,5 +61,14 @@ final class ShowPulseWorkerTest extends TestCase
         $sleepTime = $worker->calculateSleepTime();
 
         $this->assertEquals(5, $sleepTime);
+    }
+
+    public function testMaxFailuresAllowed()
+    {
+        $worker = new ShowPulseWorker();
+
+        $failures = $worker->maxFailuresAllowed();
+
+        $this->assertEquals(5, $failures);
     }
 }

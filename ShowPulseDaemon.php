@@ -15,11 +15,11 @@ while (true) {
         $worker->getNextRequest();
         $sleepTime = $worker->calculateSleepTime();
         sleep($sleepTime);
-        $worker->resetAttemptCount();
+        $worker->resetFailureCount();
     } catch (Exception $e) {
-        $worker->logError($e->getMessage());
+        $worker->logFailure($e->getMessage());
         $sleepTime = $worker->exponentialBackoffSleep();
-        $worker->increaseAttemptCount();
+        $worker->increaseFailureCount();
         sleep($sleepTime);
     }
 }
