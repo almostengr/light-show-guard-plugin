@@ -11,14 +11,14 @@ while (true) {
     try {
         $worker->getWebsiteApiKey();
         $worker->getFppStatus();
-        $worker->postShowStatus();
-        $worker->getNextRequest();
+        $worker->postStatus();
+        $worker->insertNextRequest();
         $sleepTime = $worker->calculateSleepTime();
         sleep($sleepTime);
         $worker->resetFailureCount();
     } catch (Exception $e) {
         $worker->logFailure($e->getMessage());
-        $sleepTime = $worker->exponentialBackoffSleep();
+        $sleepTime = $worker->exponentialSleepTime();
         $worker->increaseFailureCount();
         sleep($sleepTime);
     }

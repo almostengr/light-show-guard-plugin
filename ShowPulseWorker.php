@@ -24,13 +24,8 @@ final class StatusDto
 
     public function assignMedia($title = null, $artist = null)
     {
-        if (!is_null($title)) {
-            $this->song_title = $title;
-        }
-
-        if (!is_null($artist)) {
-            $this->song_artist = $artist;
-        }
+        $this->song_title = $title;
+        $this->song_artist = $artist;
     }
 }
 
@@ -39,7 +34,9 @@ final class ShowPulseWorker extends ShowPulseBase
     private $fppStatus;
     private $failureCount;
     private $lastSequence;
+    private $lastUpdated;
     private $nextJukeboxRequest;
+    private $statusResponse;
 
     public function __construct()
     {
@@ -47,11 +44,18 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->fppStatus = null;
         $this->lastSequence = null;
         $this->nextJukeboxRequest = null;
+        $this->statusResponse = null;
+        $this->lastUpdated = time() - $this->fifteenMinutesAgo();
     }
 
     public function getFailureCount()
     {
         return $this->failureCount;
+    }
+
+    public function fifteenMinutesAgo()
+    {
+        return time() - 900;
     }
 
     public function logFailure($exceptionMessage)
@@ -92,11 +96,10 @@ final class ShowPulseWorker extends ShowPulseBase
         return strpos($playlistName, 'test') >= 0 || strpos($playlistName, 'offline') >= 0;
     }
 
-    public function exponentialBackoffSleep()
+    public function exponentialSleepTime()
     {
         $defaultDelay = 2;
-        $maxDelay = 15;
-        return min(pow(2, $this->failureCount) * $defaultDelay, $maxDelay);
+        return pow(2, $this->failureCount) * $defaultDelay;
     }
 
     public function resetFailureCount()
@@ -113,7 +116,7 @@ final class ShowPulseWorker extends ShowPulseBase
     {
         return $this->failureCount < $this->maxFailuresAllowed();
     }
-    
+
     public function increaseFailureCount()
     {
         if ($this->isBelowMaxFailureThreshold()) {
@@ -131,26 +134,47 @@ final class ShowPulseWorker extends ShowPulseBase
         return 30;
     }
 
-    public function getNextRequest()
+    public function postStatus()
     {
-        $secondsRemaining = intval($this->fppStatus->seconds_remaining);
-        if ($secondsRemaining > $this->sleepShortValue()) {
+        if (
+            $this->lastUpdated < $this->fifteenMinutesAgo() &&
+            $this->lastSequence === $this->fppStatus->current_sequence &&
+            $this->isTestingOrOfflinePlaylist()
+        ) {
+            $this->statusResponse = null;
             return;
         }
 
-        $url = $this->websiteUrl("requests/next");
-        $this->nextJukeboxRequest = $this->httpRequest($url, "PUT", null, $this->getWebsiteAuthorizationHeaders());
+        $errorCount = count($this->fppStatus->warnings);
+        $statusDto = new StatusDto($errorCount, $this->fppStatus->current_sequence, $this->fppStatus->status_name);
 
-        if ($this->nextJukeboxRequest->failed) {
-            $this->logError("Unable to get latest jukebox request from server. " . $this->nextJukeboxRequest->message);
+        if (!empty($this->fppStatus->current_song)) {
+            $metaData = $this->getMediaMetaData($this->fppStatus->current_song);
+
+            if (!is_null($metaData) && !is_null($metaData->format->tags)) {
+                $statusDto->assignMedia($metaData->format->tags->title, $metaData->format->tags->artist);
+            }
+        }
+
+        $url = $this->websiteUrl("statuses/add");
+        $this->statusResponse = $this->httpRequest($url, "POST", $statusDto, $this->getWebsiteAuthorizationHeaders());
+
+        if ($this->statusResponse->failed) {
+            $this->logError("Unable to update show status. " . $this->statusResponse->messsage);
             return;
         }
 
-        if (is_null($this->nextJukeboxRequest->data)) {
+        $this->lastSequence = $this->fppStatus->current_sequence;
+        $this->lastUpdated = time();
+    }
+
+    public function insertNextRequest()
+    {
+        if (is_null($this->statusResponse) || is_null($this->statusResponse->data)) {
             return;
         }
 
-        switch ($this->nextJukeboxRequest->data->sequence) {
+        switch ($this->statusResponse->data->sequence) {
             case "SPSTOPSHOW":
                 $url = $this->fppUrl("playlists/stopgracefully");
                 $this->httpRequest($url);
@@ -172,37 +196,6 @@ final class ShowPulseWorker extends ShowPulseBase
                     array($this->nextJukeboxRequest->data->sequence, "-1", "-1", "false")
                 );
         }
-    }
-
-    public function postShowStatus()
-    {
-        if (
-            $this->lastSequence === $this->fppStatus->current_sequence ||
-            $this->isTestingOrOfflinePlaylist()
-        ) {
-            return;
-        }
-
-        $hasErrors = count($this->fppStatus->warnings);
-        $statusDto = new StatusDto($hasErrors, $this->fppStatus->current_sequence, $this->fppStatus->status_name);
-
-        if (!empty($this->fppStatus->current_song)) {
-            $metaData = $this->getMediaMetaData($this->fppStatus->current_song);
-
-            if (!is_null($metaData) && !is_null($metaData->format->tags)) {
-                $statusDto->assignMedia($metaData->format->tags->title, $metaData->format->tags->artist);
-            }
-        }
-
-        $url = $this->websiteUrl("statuses/add");
-        $result = $this->httpRequest($url, "POST", $statusDto, $this->getWebsiteAuthorizationHeaders());
-
-        if ($result->failed) {
-            $this->logError("Unable to update show status. " . $result->messsage);
-            return;
-        }
-
-        $this->lastSequence = $this->fppStatus->current_sequence;
     }
 
     public function calculateSleepTime()
