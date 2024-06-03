@@ -17,7 +17,7 @@ abstract class ShowPulseBase
     protected function websiteUrl($route = null)
     {
         $url = $this->useBetaEnvironment() ?
-            "https://bshowpulse.rhtservices.net/api/" : "https://showpulse.rhtservices.net/api/";
+            "https://showpulsebeta.rhtservices.net/api/" : "https://showpulse.rhtservices.net/api/";
 
         if (!is_null($route)) {
             $url .= $route;
