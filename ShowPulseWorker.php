@@ -35,7 +35,6 @@ final class ShowPulseWorker extends ShowPulseBase
     private $failureCount;
     private $lastSequence;
     private $lastUpdated;
-    private $nextJukeboxRequest;
     private $statusResponse;
 
     public function __construct()
@@ -43,7 +42,6 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->failureCount = 0;
         $this->fppStatus = null;
         $this->lastSequence = null;
-        $this->nextJukeboxRequest = null;
         $this->statusResponse = null;
         $this->lastUpdated = time() - $this->fifteenMinutesAgo();
     }
@@ -144,8 +142,8 @@ final class ShowPulseWorker extends ShowPulseBase
             return;
         }
 
-        $errorCount = count($this->fppStatus->warnings);
-        $statusDto = new StatusDto($errorCount, $this->fppStatus->current_sequence, $this->fppStatus->status_name);
+        $warningCount = count($this->fppStatus->warnings);
+        $statusDto = new StatusDto($warningCount, $this->fppStatus->current_sequence, $this->fppStatus->status_name);
 
         if (!empty($this->fppStatus->current_song)) {
             $metaData = $this->getMediaMetaData($this->fppStatus->current_song);
@@ -174,26 +172,73 @@ final class ShowPulseWorker extends ShowPulseBase
         }
 
         switch ($this->statusResponse->data->sequence) {
-            case "SPSTOPSHOW":
-                $url = $this->fppUrl("playlists/stopgracefully");
-                $this->httpRequest($url);
+            case "SP_STOP_IMMEDIATELY":
+                $this->stopPlaylistImmediately();
                 break;
 
-            case "SPRESTART":
-                $url = $this->fppUrl("system/restart");
-                $this->httpRequest($url);
+            case "SP_RESTART_IMMEDIATELY":
+                $this->stopPlaylistImmediately();
+                $this->systemRestart();
                 break;
 
-            case "SPSHUTDOWN":
-                $url = $this->fppUrl("system/shutdown");
-                $this->httpRequest($url);
+            case "SP_SHUTDOWN_IMMEDIATELY":
+                $this->stopPlaylistImmediately();
+                $this->systemShutdown();
+                break;
+
+            case "SP_STOP_GRACEFULLY":
+                $this->stopPlaylistGracefully(false);
+                break;
+
+            case "SP_RESTART_GRACEFULLY":
+                $this->stopPlaylistGracefully(true);
+                $this->systemRestart();
+                break;
+
+            case "SP_SHUTDOWN_GRACEFULLY":
+                $this->stopPlaylistGracefully(true);
+                $this->systemShutdown();
                 break;
 
             default:
                 $this->executeFppCommand(
                     "Insert Playlist After Current",
-                    array($this->nextJukeboxRequest->data->sequence, "-1", "-1", "false")
+                    array($this->statusResponse->data->sequence, "-1", "-1", "false")
                 );
+        }
+    }
+
+    private function systemRestart()
+    {
+        $url = $this->fppUrl("system/restart");
+        $this->httpRequest($url);
+    }
+
+    private function systemShutdown()
+    {
+        $url = $this->fppUrl("system/shutdown");
+        $this->httpRequest($url);
+    }
+
+    private function stopPlaylistImmediately()
+    {
+        $url = $this->fppUrl("playlists/stop");
+        $this->httpRequest($url);
+    }
+
+    private function stopPlaylistGracefully($waitForIdleState)
+    {
+        $url = $this->fppUrl("playlists/stopgracefully");
+        $this->httpRequest($url);
+
+        while ($waitForIdleState) {
+            $this->getFppStatus();
+
+            if ($this->fppStatus->status_name === "idle") {
+                break;
+            }
+
+            sleep($this->sleepShortValue());
         }
     }
 
