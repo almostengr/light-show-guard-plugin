@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Enable Requests",
+        "script": "RequestsEnableCommand.php"
+    },
+    {
+        "name": "Enable Requests",
+        "script": "RequestsDisableCommand.php"
+    },
+    {
+        "name": "Disable and Clear Requests",
+        "script": "RequestsDisableClearCommand.php"
+    }
+]
