@@ -3,7 +3,7 @@
 namespace App;
 use Exception;
 
-$testing = false;
+$testing = true;
 $commonFile = $testing ? "/opt/fpp/www/common.php" : __DIR__ . "/tests/OptFppWwwCommonMock.php";
 require_once $commonFile;
 
