@@ -1,14 +1,17 @@
 [
     {
         "name": "Enable Requests",
-        "script": "RequestsEnableCommand.php"
+        "script": "RequestsEnableCommand.php",
+        "args": []
     },
     {
         "name": "Enable Requests",
-        "script": "RequestsDisableCommand.php"
+        "script": "RequestsDisableCommand.php",
+        "args": []
     },
     {
         "name": "Disable and Clear Requests",
-        "script": "RequestsDisableClearCommand.php"
+        "script": "RequestsDisableClearCommand.php",
+        "args": []
     }
 ]
