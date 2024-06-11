@@ -118,7 +118,7 @@ final class ShowPulseSettingForm extends ShowPulseBase
                     <small class="form-text text-muted">
                         Beta API Key can be used to test what will happen with your show. Separate API key is required 
                         for beta environment. You can sign up at 
-                        <a href="https://bshowpulse.rhtservices.net" target="_blank">https://bshowpulse.rhtservices.net</a>.
+                        <a href="https://showpulsebeta.rhtservices.net" target="_blank">https://showpulsebeta.rhtservices.net</a>.
                     </small>
                 </div>
                 <button type="submit" class="btn btn-primary">Save Settings</button>
