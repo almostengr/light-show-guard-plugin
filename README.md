@@ -14,12 +14,8 @@ https://github.com/almostengr/show-pulse-fpp/master/pluginInfo.json
 
 ## Setup 
 
-* Perform steps in Install Plugin section.
-* Create an account on the Light Show Pulse website.
-* Generate an API key from the "My Shows" page. 
-* Copy and paste the API key from the website, into the plugin settings page on your primary or main Falcon Pi Player controller. 
-* Save settings.
-
+See the [User Guide](https://lightshowpulse.com/pages/user-guide/fpp-plugin-quick-start) for how 
+to configure the plugin.
 
 ## Additional Information
 
