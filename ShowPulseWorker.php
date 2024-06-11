@@ -59,7 +59,7 @@ final class ShowPulseWorker extends ShowPulseBase
     public function logFailure($exceptionMessage)
     {
         if ($this->isBelowMaxFailureThreshold()) {
-            $message = $exceptionMessage . " (Failure " . $this->failureCount . "/" > $this->maxFailuresAllowedValue() . ")";
+            $message = $exceptionMessage . " (Attempt " . $this->failureCount . ")";
             $this->logError($message);
         }
     }

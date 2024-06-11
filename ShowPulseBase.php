@@ -1,10 +1,11 @@
 <?php
 
 namespace App;
+
 use Exception;
 
-$testing = true;
-$commonFile = $testing ? "/opt/fpp/www/common.php" : __DIR__ . "/tests/OptFppWwwCommonMock.php";
+$testing = false;
+$commonFile = $testing ? __DIR__ . "/tests/OptFppWwwCommonMock.php" : "/opt/fpp/www/common.php";
 require_once $commonFile;
 
 abstract class ShowPulseBase
