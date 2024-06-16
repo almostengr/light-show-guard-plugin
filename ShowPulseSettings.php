@@ -40,8 +40,8 @@ final class ShowPulseSettingForm extends ShowPulseBase
             $playlistDirectory = GetDirSetting("playlists");
             $playlistJson = file_get_contents($playlistDirectory . "/" . $this->playlist);
 
-            $url = $this->websiteUrl("song_options/playeradd");
-            $this->httpRequest($url, "POST", $playlistJson, $this->getWebsiteAuthorizationHeaders());
+            $url = $this->websiteUrl("shows/add-options");
+            $this->httpRequest($url, "PUT", $playlistJson, $this->getWebsiteAuthorizationHeaders());
 
             return array('success' => true, 'message' => "Settings updated successfully.");
         } catch (Exception $e) {

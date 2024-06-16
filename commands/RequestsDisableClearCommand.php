@@ -16,7 +16,7 @@ final class RequestsDisableClearCommand extends ShowPulseBase implements ShowPul
             return;
         }
 
-        $url = $this->websiteUrl("shows/clearoff");
+        $url = $this->websiteUrl("shows/clear-off");
         $response = $this->httpRequest($url, 'PUT', null, $this->getWebsiteAuthorizationHeaders());
     }
 }

@@ -73,7 +73,7 @@ abstract class ShowPulseBase
 
     public function saveSetting($key, $value)
     {
-        if (empty($key) || is_null($key)) {
+        if ($this->isNullOrEmpty($key)) {
             throw new Exception("Setting key was not specified");
         }
 
@@ -85,7 +85,7 @@ abstract class ShowPulseBase
 
     public function readSetting($key)
     {
-        if (empty($key) || is_null($key)) {
+        if ($this->isNullOrEmpty($key)) {
             return false;
         }
 
@@ -126,7 +126,30 @@ abstract class ShowPulseBase
 
     public function logError($data)
     {
-        $currentDateTime = date('Y-m-d h:i:s A');
-        error_log("$currentDateTime: $data");
+
     }
+
+    public function isNullOrEmpty($value)
+    {
+        return is_null($value) || empty($value);
+    }
+
+    public function isNotNullOrEmpty($value)
+    {
+        return !$this->isNullOrEmpty($value);
+    }
+
+    public function idleStatusValue()
+    {
+        return "idle";
+    }
+}
+
+
+final class ShowPulseResponseDto
+{
+    public $success;
+    public $failed;
+    public $message;
+    public $data;
 }

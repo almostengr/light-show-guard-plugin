@@ -16,7 +16,7 @@ final class RequestsEnableCommand extends ShowPulseBase implements ShowPulseComm
             return;
         }
 
-        $url = $this->websiteUrl("shows/requeston");
+        $url = $this->websiteUrl("shows/request-on");
         $response = $this->httpRequest($url, 'PUT', null, $this->getWebsiteAuthorizationHeaders());
     }
 }

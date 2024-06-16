@@ -34,16 +34,16 @@ final class ShowPulseWorker extends ShowPulseBase
     private $fppStatus;
     private $failureCount;
     private $lastSequence;
-    private $lastUpdated;
-    private $statusResponse;
+    private $lastStatusCheckTime;
+    private $lastRequestCheckTime;
 
     public function __construct()
     {
         $this->failureCount = 0;
         $this->fppStatus = null;
         $this->lastSequence = null;
-        $this->statusResponse = null;
-        $this->lastUpdated = time() - $this->fifteenMinutesAgo();
+        $this->lastStatusCheckTime = time() - $this->fifteenMinutesAgo();
+        $this->lastRequestCheckTime = time() - $this->fifteenMinutesAgo();
     }
 
     public function getFailureCount()
@@ -56,11 +56,11 @@ final class ShowPulseWorker extends ShowPulseBase
         return time() - 900;
     }
 
-    public function logFailure($exceptionMessage)
+    public function logError($message)
     {
         if ($this->isBelowMaxFailureThreshold()) {
-            $message = $exceptionMessage . " (Attempt " . $this->failureCount . ")";
-            $this->logError($message);
+            $currentDateTime = date('Y-m-d h:i:s A');
+            error_log("$currentDateTime: $message (Attempt  $this->failureCount)");
         }
     }
 
@@ -69,35 +69,19 @@ final class ShowPulseWorker extends ShowPulseBase
         $url = $this->fppUrl("fppd/status");
         $this->fppStatus = $this->httpRequest($url);
 
-        if (is_null($this->fppStatus)) {
+        if ($this->isNullOrEmpty($this->fppStatus)) {
             throw new Exception("Unable to get latest status from FPP.");
         }
     }
 
-    public function getMediaMetaData($filename = null)
-    {
-        if (is_null($filename) || empty($filename)) {
-            return null;
-        }
-
-        $url = $this->fppUrl("media/$filename/meta");
-        return $this->httpRequest($url);
-    }
-
     public function isTestingOrOfflinePlaylist()
     {
-        if (is_null($this->fppStatus)) {
+        if ($this->isNullOrEmpty($this->fppStatus)) {
             return false;
         }
 
         $playlistName = strtolower($this->fppStatus->current_playlist->playlist);
         return strpos($playlistName, 'test') >= 0 || strpos($playlistName, 'offline') >= 0;
-    }
-
-    public function exponentialSleepTime()
-    {
-        $defaultDelay = 2;
-        return pow(2, $this->failureCount) * $defaultDelay;
     }
 
     public function resetFailureCount()
@@ -135,77 +119,98 @@ final class ShowPulseWorker extends ShowPulseBase
     public function postStatus()
     {
         if (
-            ($this->lastSequence === $this->fppStatus->current_sequence && $this->lastUpdated < $this->fifteenMinutesAgo()) ||
+            ($this->lastSequence === $this->fppStatus->current_sequence && $this->lastStatusCheckTime < $this->fifteenMinutesAgo()) ||
             $this->isTestingOrOfflinePlaylist()
         ) {
-            $this->statusResponse = null;
             return;
         }
 
         $warningCount = count($this->fppStatus->warnings);
         $statusDto = new StatusDto($warningCount, $this->fppStatus->current_sequence, $this->fppStatus->status_name);
 
-        if (!empty($this->fppStatus->current_song)) {
-            $metaData = $this->getMediaMetaData($this->fppStatus->current_song);
+        if ($this->isNotNullOrEmpty($this->fppStatus->current_song)) {
+            $url = $this->fppUrl("media/" . $this->fppStatus->current_song . "/meta");
+            $metaData = $this->httpRequest($url);
 
-            if (!is_null($metaData) && !is_null($metaData->format->tags)) {
+            if ($this->isNotNullOrEmpty($metaData) && $this->isNotNullOrEmpty($metaData->format->tags)) {
                 $statusDto->assignMedia($metaData->format->tags->title, $metaData->format->tags->artist);
             }
         }
 
         $url = $this->websiteUrl("statuses/add");
-        $this->statusResponse = $this->httpRequest($url, "POST", $statusDto, $this->getWebsiteAuthorizationHeaders());
+        $response = $this->httpRequest($url, "POST", $statusDto, $this->getWebsiteAuthorizationHeaders());
 
-        if ($this->statusResponse->failed) {
-            $this->logError("Unable to update show status. " . $this->statusResponse->messsage);
-            return;
+        if ($response->failed) {
+            throw new Exception("Unable to update show status. " . $response->message);
         }
 
         $this->lastSequence = $this->fppStatus->current_sequence;
-        $this->lastUpdated = time();
+        $this->lastStatusCheckTime = time();
     }
 
-    public function insertNextRequest()
+    /**
+     * @var ShowPulseResponseDto @responseDto
+     * 
+     */
+    public function getAndInsertNextRequest()
     {
-        if (is_null($this->statusResponse) || is_null($this->statusResponse->data)) {
+        if (
+            ($this->lastSequence === $this->fppStatus->current_sequence && $this->lastRequestCheckTime < $this->fifteenMinutesAgo()) ||
+            $this->isTestingOrOfflinePlaylist()
+        ) {
             return;
         }
 
-        switch ($this->statusResponse->data->sequence) {
+        $url = $this->websiteUrl("jukebox_requests/next");
+        $responseDto = $this->httpRequest($url, "GET", null, $this->getWebsiteAuthorizationHeaders());
+
+        if (is_null($responseDto) || $responseDto->failed) {
+            $this->logError($responseDto->message);
+            return;
+        }
+
+        if (is_null($responseDto->data)) {
+            $this->lastRequestCheckTime = time();
+            return;
+        }
+
+        switch ($responseDto->data) {
             case "SP_STOP_IMMEDIATELY":
-                $this->stopPlaylistImmediately();
+                $this->stopPlaylist(false);
                 break;
 
             case "SP_RESTART_IMMEDIATELY":
-                $this->stopPlaylistImmediately();
+                $this->stopPlaylist(false);
                 $this->systemRestart();
                 break;
 
             case "SP_SHUTDOWN_IMMEDIATELY":
-                $this->stopPlaylistImmediately();
+                $this->stopPlaylist(false);
                 $this->systemShutdown();
                 break;
 
             case "SP_STOP_GRACEFULLY":
-                $this->stopPlaylistGracefully(false);
+                $this->stopPlaylist(false);
                 break;
 
             case "SP_RESTART_GRACEFULLY":
-                $this->stopPlaylistGracefully(true);
+                $this->stopPlaylist(true);
                 $this->systemRestart();
                 break;
 
             case "SP_SHUTDOWN_GRACEFULLY":
-                $this->stopPlaylistGracefully(true);
+                $this->stopPlaylist(true);
                 $this->systemShutdown();
                 break;
 
             default:
                 $this->executeFppCommand(
                     "Insert Playlist After Current",
-                    array($this->statusResponse->data->sequence, "-1", "-1", "false")
+                    array($responseDto->data->sequence, "-1", "-1", "false")
                 );
         }
+
+        $this->lastRequestCheckTime = time();
     }
 
     private function systemRestart()
@@ -220,21 +225,15 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->httpRequest($url);
     }
 
-    private function stopPlaylistImmediately()
+    private function stopPlaylist($isGracefulStop)
     {
-        $url = $this->fppUrl("playlists/stop");
-        $this->httpRequest($url);
-    }
-
-    private function stopPlaylistGracefully($waitForIdleState)
-    {
-        $url = $this->fppUrl("playlists/stopgracefully");
+        $url = $isGracefulStop ? $this->fppUrl("playlists/stopgracefully") : $this->fppUrl("playlists/stop");
         $this->httpRequest($url);
 
-        while ($waitForIdleState) {
+        while ($isGracefulStop) {
             $this->getFppStatus();
 
-            if ($this->fppStatus->status_name === "idle") {
+            if ($this->fppStatus->status_name === $this->idleStatusValue()) {
                 break;
             }
 
@@ -248,6 +247,27 @@ final class ShowPulseWorker extends ShowPulseBase
             return $this->sleepShortValue();
         }
 
-        return $this->fppStatus->status_name === "idle" ? $this->sleepLongValue() : $this->sleepShortValue();
+        return $this->fppStatus->status_name === $this->idleStatusValue() ? $this->sleepLongValue() : $this->sleepShortValue();
+    }
+
+    public function execute()
+    {
+        try {
+            $this->getWebsiteApiKey();
+            $this->getFppStatus();
+            $this->postStatus();
+            $this->getAndInsertNextRequest();
+            $sleepTime = $this->calculateSleepTime();
+            sleep($sleepTime);
+            $this->resetFailureCount();
+        } catch (Exception $e) {
+            $this->logError($e->getMessage());
+
+            $defaultDelay = 2;
+            $sleepTime = $this->getFailureCount() * $defaultDelay;
+
+            $this->increaseFailureCount();
+            sleep($sleepTime);
+        }
     }
 }
