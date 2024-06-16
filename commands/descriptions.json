@@ -1,16 +1,16 @@
 [
     {
-        "name": "Enable Requests",
+        "name": "Show Pulse-Enable Requests",
         "script": "RequestsEnableCommand.php",
         "args": []
     },
     {
-        "name": "Enable Requests",
+        "name": "Show Pulse-Disable Requests",
         "script": "RequestsDisableCommand.php",
         "args": []
     },
     {
-        "name": "Disable and Clear Requests",
+        "name": "Show Pulse-Disable and Clear Requests",
         "script": "RequestsDisableClearCommand.php",
         "args": []
     }
