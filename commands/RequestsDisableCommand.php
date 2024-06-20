@@ -12,12 +12,17 @@ final class RequestsDisableCommand extends ShowPulseBase implements ShowPulseCom
     {
         $apiKey = $this->getWebsiteApiKey();
 
-        if (empty($apiKey) || is_null($apiKey)) {
+        if ($apiKey === false) {
             return;
         }
 
-        $url = $this->websiteUrl("shows/request-off");
-        $response = $this->httpRequest($url, 'PUT', null, $this->getWebsiteAuthorizationHeaders());
+        $this->httpRequest(
+            false,
+            "shows/request-off",
+            'PUT',
+            null,
+            $this->getWebsiteAuthorizationHeaders()
+        );
     }
 }
 

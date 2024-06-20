@@ -37,7 +37,7 @@ final class StatusDtoTest extends TestCase
     public function testAssignMediaWithTitleAndArtist()
     {
         $dto = new StatusDto(0, "test.fseq", "playing");
-        $dto->assignMedia("Foo", "Bar");
+        $dto->assignMediaData("Foo", "Bar");
 
         $this->assertEquals("Foo", $dto->song_title);
         $this->assertEquals("Bar", $dto->song_artist);
@@ -47,7 +47,7 @@ final class StatusDtoTest extends TestCase
     {
         $dto = new StatusDto(0, "test.fseq", "playing");
 
-        $dto->assignMedia("Foo");
+        $dto->assignMediaData("Foo", null);
 
         $this->assertEquals("Foo", $dto->song_title);
         $this->assertEquals(null, $dto->song_artist);

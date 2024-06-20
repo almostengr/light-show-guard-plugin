@@ -12,38 +12,24 @@ abstract class ShowPulseBase
 {
     public function useBetaEnvironment()
     {
-        return $this->readSetting("ENVIRONMENT") === "BETA";
+        return $this->readSetting(ShowPulseConstant::ENVIRONMENT) === ShowPulseConstant::BETA_ENVIRONMENT;
     }
 
-    protected function websiteUrl($route = null)
+    protected function httpRequest($forFpp, $route, $method = "GET", $data = null, $headers = array())
     {
-        $url = $this->useBetaEnvironment() ?
-            "https://showpulsebeta.rhtservices.net/api/" : "https://showpulse.rhtservices.net/api/";
-
-        if (!is_null($route)) {
-            $url .= $route;
+        if ($this->isNullOrEmpty($route)) {
+            throw new Exception("Invalid URL");
         }
 
-        return $url;
-    }
-
-    protected function fppUrl($route = null)
-    {
-        $url = "http://127.0.0.1/api/";
-        if (!is_null($route)) {
-            $url .= $route;
+        $url = "https://showpulse.rhtservices.net/api/";
+        if ($forFpp) {
+            $url = "https://127.0.0.1/api";
+        } else if ($this->useBetaEnvironment()) {
+            $url = "https://showpulsebeta.rhtservices.net/api/";
         }
 
-        return $url;
-    }
+        $url = $url . $route;
 
-    protected function pluginName()
-    {
-        return "show_pulse";
-    }
-
-    protected function httpRequest($url, $method = "GET", $data = null, $headers = array())
-    {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -74,13 +60,13 @@ abstract class ShowPulseBase
     public function saveSetting($key, $value)
     {
         if ($this->isNullOrEmpty($key)) {
-            throw new Exception("Setting key was not specified");
+            throw new Exception("Setting could not be saved.");
         }
 
         $value = trim($value);
         $key = trim($key);
 
-        WriteSettingToFile($key, $value, $this->pluginName());
+        WriteSettingToFile($key, $value, ShowPulseConstant::PLUGIN_NAME);
     }
 
     public function readSetting($key)
@@ -89,12 +75,12 @@ abstract class ShowPulseBase
             return false;
         }
 
-        return ReadSettingFromFile($key, $this->pluginName()) ?? false;
+        return ReadSettingFromFile($key, ShowPulseConstant::PLUGIN_NAME) ?? false;
     }
 
     public function getWebsiteApiKey()
     {
-        $value = $this->useBetaEnvironment() ? $this->readSetting("BETA_API_KEY") : $this->readSetting("API_KEY");
+        $value = $this->useBetaEnvironment() ? $this->readSetting(ShowPulseConstant::BETA_API_KEY) : $this->readSetting(ShowPulseConstant::API_KEY);
 
         if ($value) {
             return $value;
@@ -116,17 +102,13 @@ abstract class ShowPulseBase
             $args .= "/$value";
         }
 
-        $url = $this->fppUrl($args);
-        $result = $this->httpRequest($url, "GET", $args);
-
-        if ($result === false) {
-            throw new Exception("Unable to execute FPP command.");
-        }
+        $this->httpRequest(true, $args, "GET", $args);
     }
 
-    public function logError($data)
+    public function logError($message)
     {
-
+        $currentDateTime = date('Y-m-d h:i:s A');
+        error_log("$currentDateTime: $message");
     }
 
     public function isNullOrEmpty($value)
@@ -138,13 +120,7 @@ abstract class ShowPulseBase
     {
         return !$this->isNullOrEmpty($value);
     }
-
-    public function idleStatusValue()
-    {
-        return "idle";
-    }
 }
-
 
 final class ShowPulseResponseDto
 {
@@ -152,4 +128,16 @@ final class ShowPulseResponseDto
     public $failed;
     public $message;
     public $data;
+}
+
+final class ShowPulseConstant
+{
+    const ENVIRONMENT = "ENVIRONMENT";
+    const API_KEY = "API_KEY";
+    const BETA_API_KEY = "BETA_API_KEY";
+    const BETA_ENVIRONMENT = "BETA";
+    const PLUGIN_NAME = "show_pulse";
+    const PLAYLIST = "playlist";
+    const PRODUCTION_ENVIRONMENT = "PRODUCTION";
+    const IDLE = 0;
 }

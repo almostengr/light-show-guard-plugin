@@ -12,12 +12,17 @@ final class RequestsEnableCommand extends ShowPulseBase implements ShowPulseComm
     {
         $apiKey = $this->getWebsiteApiKey();
 
-        if (empty($apiKey) || is_null($apiKey)) {
+        if ($apiKey === false) {
             return;
         }
 
-        $url = $this->websiteUrl("shows/request-on");
-        $response = $this->httpRequest($url, 'PUT', null, $this->getWebsiteAuthorizationHeaders());
+        $this->httpRequest(
+            false,
+            "shows/request-on",
+            'PUT',
+            null,
+            $this->getWebsiteAuthorizationHeaders()
+        );
     }
 }
 

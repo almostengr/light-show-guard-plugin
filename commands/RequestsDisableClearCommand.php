@@ -12,12 +12,17 @@ final class RequestsDisableClearCommand extends ShowPulseBase implements ShowPul
     {
         $apiKey = $this->getWebsiteApiKey();
 
-        if (empty($apiKey) || is_null($apiKey)) {
+        if ($apiKey === false) {
             return;
         }
 
-        $url = $this->websiteUrl("shows/clear-off");
-        $response = $this->httpRequest($url, 'PUT', null, $this->getWebsiteAuthorizationHeaders());
+        $this->httpRequest(
+            false,
+            "shows/clear-off",
+            'PUT',
+            null,
+            $this->getWebsiteAuthorizationHeaders()
+        );
     }
 }
 

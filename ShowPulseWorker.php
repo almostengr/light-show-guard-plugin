@@ -10,19 +10,23 @@ final class StatusDto
 {
     public $warnings;
     public $sequence;
+    public $song;
     public $song_title;
     public $song_artist;
-    public $status;
+    public $fpp_status_id;
 
-    public function __construct($hasErrors, $sequence, $status)
+    public function __construct($warnings, $sequence, $song, $fpp_status_id)
     {
-        $this->warnings = $hasErrors;
+        $this->warnings = count($warnings) ?? 0;
         $this->sequence = $sequence;
-        $this->status = $status;
+        $this->song = $song;
+        $this->fpp_status_id = $fpp_status_id;
         $this->song_title = str_replace("_", " ", str_replace(".fseq", "", $sequence));
+        $this->song_title = null;
+        $this->song_artist = null;
     }
 
-    public function assignMedia($title = null, $artist = null)
+    public function assignMediaData($title, $artist)
     {
         $this->song_title = $title;
         $this->song_artist = $artist;
@@ -34,16 +38,18 @@ final class ShowPulseWorker extends ShowPulseBase
     private $fppStatus;
     private $failureCount;
     private $lastSequence;
+    private $lastSong;
     private $lastStatusCheckTime;
     private $lastRequestCheckTime;
+    private $skipRequestCheck;
 
     public function __construct()
     {
         $this->failureCount = 0;
         $this->fppStatus = null;
         $this->lastSequence = null;
-        $this->lastStatusCheckTime = time() - $this->fifteenMinutesAgo();
-        $this->lastRequestCheckTime = time() - $this->fifteenMinutesAgo();
+        $this->lastStatusCheckTime = $this->fifteenMinutesAgo();
+        $this->lastRequestCheckTime = $this->fifteenMinutesAgo();
     }
 
     public function getFailureCount()
@@ -56,32 +62,13 @@ final class ShowPulseWorker extends ShowPulseBase
         return time() - 900;
     }
 
-    public function logError($message)
-    {
-        if ($this->isBelowMaxFailureThreshold()) {
-            $currentDateTime = date('Y-m-d h:i:s A');
-            error_log("$currentDateTime: $message (Attempt  $this->failureCount)");
-        }
-    }
-
     public function getFppStatus()
     {
-        $url = $this->fppUrl("fppd/status");
-        $this->fppStatus = $this->httpRequest($url);
+        $this->fppStatus = $this->httpRequest(true, "fppd/status");
 
         if ($this->isNullOrEmpty($this->fppStatus)) {
             throw new Exception("Unable to get latest status from FPP.");
         }
-    }
-
-    public function isTestingOrOfflinePlaylist()
-    {
-        if ($this->isNullOrEmpty($this->fppStatus)) {
-            return false;
-        }
-
-        $playlistName = strtolower($this->fppStatus->current_playlist->playlist);
-        return strpos($playlistName, 'test') >= 0 || strpos($playlistName, 'offline') >= 0;
     }
 
     public function resetFailureCount()
@@ -118,51 +105,68 @@ final class ShowPulseWorker extends ShowPulseBase
 
     public function postStatus()
     {
+        $this->getFppStatus();
+
         if (
-            ($this->lastSequence === $this->fppStatus->current_sequence && $this->lastStatusCheckTime < $this->fifteenMinutesAgo()) ||
-            $this->isTestingOrOfflinePlaylist()
+            $this->lastSequence === $this->fppStatus->current_sequence &&
+            $this->lastSong === $this->fppStatus->current_song
         ) {
             return;
         }
 
-        $warningCount = count($this->fppStatus->warnings);
-        $statusDto = new StatusDto($warningCount, $this->fppStatus->current_sequence, $this->fppStatus->status_name);
+        $statusDto = new StatusDto(
+            $this->fppStatus->warnings,
+            $this->fppStatus->current_sequence,
+            $this->fppStatus->current_song,
+            $this->fppStatus->status
+        );
 
         if ($this->isNotNullOrEmpty($this->fppStatus->current_song)) {
-            $url = $this->fppUrl("media/" . $this->fppStatus->current_song . "/meta");
-            $metaData = $this->httpRequest($url);
+            $metaData = $this->httpRequest(
+                true,
+                "media/" . $this->fppStatus->current_song . "/meta"
+            );
 
             if ($this->isNotNullOrEmpty($metaData) && $this->isNotNullOrEmpty($metaData->format->tags)) {
-                $statusDto->assignMedia($metaData->format->tags->title, $metaData->format->tags->artist);
+                $statusDto->assignMediaData($metaData->format->tags->title, $metaData->format->tags->artist);
             }
         }
 
-        $url = $this->websiteUrl("statuses/add");
-        $response = $this->httpRequest($url, "POST", $statusDto, $this->getWebsiteAuthorizationHeaders());
+        $response = $this->httpRequest(
+            false,
+            "shows/update-status",
+            "POST",
+            $statusDto,
+            $this->getWebsiteAuthorizationHeaders()
+        );
 
         if ($response->failed) {
             throw new Exception("Unable to update show status. " . $response->message);
         }
 
         $this->lastSequence = $this->fppStatus->current_sequence;
+        $this->lastSong = $this->fppStatus->current_song;
         $this->lastStatusCheckTime = time();
+        $this->skipRequestCheck = false;
     }
 
     /**
      * @var ShowPulseResponseDto @responseDto
-     * 
+     *
      */
     public function getAndInsertNextRequest()
     {
-        if (
-            ($this->lastSequence === $this->fppStatus->current_sequence && $this->lastRequestCheckTime < $this->fifteenMinutesAgo()) ||
-            $this->isTestingOrOfflinePlaylist()
-        ) {
+        if ($this->skipRequestCheck && $this->lastRequestCheckTime < $this->fifteenMinutesAgo()) {
             return;
         }
 
-        $url = $this->websiteUrl("jukebox_requests/next");
-        $responseDto = $this->httpRequest($url, "GET", null, $this->getWebsiteAuthorizationHeaders());
+        $responseDto = $this->httpRequest(
+            false,
+            "jukebox-requests/next",
+            "GET",
+            null,
+            $this->getWebsiteAuthorizationHeaders()
+        );
 
         if (is_null($responseDto) || $responseDto->failed) {
             $this->logError($responseDto->message);
@@ -215,25 +219,23 @@ final class ShowPulseWorker extends ShowPulseBase
 
     private function systemRestart()
     {
-        $url = $this->fppUrl("system/restart");
-        $this->httpRequest($url);
+        $this->httpRequest(true, "system/restart");
     }
 
     private function systemShutdown()
     {
-        $url = $this->fppUrl("system/shutdown");
-        $this->httpRequest($url);
+        $this->httpRequest(true, "system/shutdown");
     }
 
     private function stopPlaylist($isGracefulStop)
     {
-        $url = $isGracefulStop ? $this->fppUrl("playlists/stopgracefully") : $this->fppUrl("playlists/stop");
-        $this->httpRequest($url);
+        $url = $isGracefulStop ? "playlists/stopgracefully" : "playlists/stop";
+        $this->httpRequest(true, $url);
 
         while ($isGracefulStop) {
             $this->getFppStatus();
 
-            if ($this->fppStatus->status_name === $this->idleStatusValue()) {
+            if ($this->fppStatus->status === ShowPulseConstant::IDLE) {
                 break;
             }
 
@@ -247,21 +249,23 @@ final class ShowPulseWorker extends ShowPulseBase
             return $this->sleepShortValue();
         }
 
-        return $this->fppStatus->status_name === $this->idleStatusValue() ? $this->sleepLongValue() : $this->sleepShortValue();
+        return $this->fppStatus->status === ShowPulseConstant::IDLE ? $this->sleepLongValue() : $this->sleepShortValue();
     }
 
     public function execute()
     {
         try {
             $this->getWebsiteApiKey();
-            $this->getFppStatus();
             $this->postStatus();
             $this->getAndInsertNextRequest();
             $sleepTime = $this->calculateSleepTime();
             sleep($sleepTime);
             $this->resetFailureCount();
         } catch (Exception $e) {
-            $this->logError($e->getMessage());
+            if ($this->isBelowMaxFailureThreshold()) {
+                $message = $e->getMessage() . " (Attempt  $this->failureCount)";
+                $this->logError($message);
+            }
 
             $defaultDelay = 2;
             $sleepTime = $this->getFailureCount() * $defaultDelay;
