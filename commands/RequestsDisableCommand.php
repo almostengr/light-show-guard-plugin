@@ -10,9 +10,9 @@ final class RequestsDisableCommand extends ShowPulseBase implements ShowPulseCom
 {
     public function execute()
     {
-        $apiKey = $this->getWebsiteApiKey();
+        $loadSuccessful = $this->loadConfiguration();
 
-        if ($apiKey === false) {
+        if (!$loadSuccessful) {
             return;
         }
 

@@ -255,9 +255,8 @@ final class ShowPulseWorker extends ShowPulseBase
     public function execute()
     {
         try {
-            $this->getWebsiteApiKey();
             $this->postStatus();
-            $this->getAndInsertNextRequest();
+            // $this->getAndInsertNextRequest();
             $sleepTime = $this->calculateSleepTime();
             sleep($sleepTime);
             $this->resetFailureCount();

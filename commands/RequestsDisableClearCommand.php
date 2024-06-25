@@ -10,9 +10,9 @@ final class RequestsDisableClearCommand extends ShowPulseBase implements ShowPul
 {
     public function execute()
     {
-        $apiKey = $this->getWebsiteApiKey();
+        $loadSuccessful = $this->loadConfiguration();
 
-        if ($apiKey === false) {
+        if (!$loadSuccessful) {
             return;
         }
 

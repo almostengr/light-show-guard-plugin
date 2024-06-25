@@ -13,5 +13,10 @@
         "name": "Show Pulse-Disable and Clear Requests",
         "script": "RequestsDisableClearCommand.php",
         "args": []
+    },
+    {
+        "name": "Show Pulse-Send Playlist as Options",
+        "script": "SendPlaylistCommand.php",
+        "args": []
     }
 ]

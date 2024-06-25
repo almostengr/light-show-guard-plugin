@@ -15,7 +15,7 @@ $menuEntries = Array(
 	Array(
 		'text' => 'Show Pulse Settings',
 		'type' => 'status',
-		'page' => 'ShowPulseSettings.php',
+		'page' => 'ShowPulseJukeboxOptions.php',
 		'wrap' => 1
 	),
 );

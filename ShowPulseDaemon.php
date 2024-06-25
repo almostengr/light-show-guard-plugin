@@ -5,6 +5,8 @@ namespace App;
 require_once "ShowPulseWorker.php";
 
 $worker = new ShowPulseWorker();
-while (true) {
+$loadResult = $worker->loadConfiguration();
+
+while ($loadResult) {
     $worker->execute();
 }

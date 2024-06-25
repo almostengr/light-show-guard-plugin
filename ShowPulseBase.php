@@ -9,11 +9,10 @@ $commonFile = $testing ? __DIR__ . "/tests/OptFppWwwCommonMock.php" : "/opt/fpp/
 require_once $commonFile;
 
 abstract class ShowPulseBase
-{
-    public function useBetaEnvironment()
-    {
-        return $this->readSetting(ShowPulseConstant::ENVIRONMENT) === ShowPulseConstant::BETA_ENVIRONMENT;
-    }
+{    
+    private $apiToken;
+    private $showId;
+    private $showPulseUrl;
 
     protected function httpRequest($forFpp, $route, $method = "GET", $data = null, $headers = array())
     {
@@ -21,11 +20,9 @@ abstract class ShowPulseBase
             throw new Exception("Invalid URL");
         }
 
-        $url = "https://showpulse.rhtservices.net/api/";
+        $url = $this->showPulseUrl;
         if ($forFpp) {
             $url = "https://127.0.0.1/api";
-        } else if ($this->useBetaEnvironment()) {
-            $url = "https://showpulsebeta.rhtservices.net/api/";
         }
 
         $url = $url . $route;
@@ -57,42 +54,9 @@ abstract class ShowPulseBase
         return null;
     }
 
-    public function saveSetting($key, $value)
-    {
-        if ($this->isNullOrEmpty($key)) {
-            throw new Exception("Setting could not be saved.");
-        }
-
-        $value = trim($value);
-        $key = trim($key);
-
-        WriteSettingToFile($key, $value, ShowPulseConstant::PLUGIN_NAME);
-    }
-
-    public function readSetting($key)
-    {
-        if ($this->isNullOrEmpty($key)) {
-            return false;
-        }
-
-        return ReadSettingFromFile($key, ShowPulseConstant::PLUGIN_NAME) ?? false;
-    }
-
-    public function getWebsiteApiKey()
-    {
-        $value = $this->useBetaEnvironment() ? $this->readSetting(ShowPulseConstant::BETA_API_KEY) : $this->readSetting(ShowPulseConstant::API_KEY);
-
-        if ($value) {
-            return $value;
-        }
-
-        throw new Exception("API Key has not been entered for the selected environment.");
-    }
-
     protected function getWebsiteAuthorizationHeaders()
     {
-        $apiKey = $this->getWebsiteApiKey();
-        return array("Authorization: Bearer $apiKey");
+        return array("Authorization: Bearer $this->apiToken");
     }
 
     protected function executeFppCommand($command, $data = array())
@@ -119,6 +83,24 @@ abstract class ShowPulseBase
     public function isNotNullOrEmpty($value)
     {
         return !$this->isNullOrEmpty($value);
+    }
+    
+    public function loadConfiguration(): bool
+    {
+        $configFile = GetDirSetting("uploads") . "/showpulse.json";
+        $contents = file_get_contents($configFile);
+
+        if ($contents === false) {
+            $this->logError("Configuration file not found. Download configuration file contents from the Light Show Pulse website. Then restart FPPD.");
+            return false;
+        }
+
+        $json = json_decode($contents, false);
+
+        $this->showId = $json->show_id;
+        $this->apiToken = $json->apiToken;
+        $this->showPulseUrl = $json->showPulseUrl;
+        return true;
     }
 }
 
