@@ -15,24 +15,22 @@ final class ShowPulseJukeboxOptions extends ShowPulseBase
         }
 
         try {
+            $loadSuccessful = $this->loadConfiguration();
+            if (!$loadSuccessful) {
+                throw new Exception("Unable to load configuration file. Configuration file can be downloaded from the Light Show Pulse website.");
+            }
+            
             $playlistDirectory = GetDirSetting("playlists");
             $playlistJson = file_get_contents($playlistDirectory . "/" . $_POST[ShowPulseConstant::PLAYLIST]);
 
-            $loadSuccessful = $this->loadConfiguration();
-
-            if (!$loadSuccessful) {
-                throw new Exception("Unable to load configuration file.");
-            }
-
             $this->httpRequest(
                 false,
-                "shows/add-options",
+                "shows/add-options/" . $this->getShowId(),
                 "PUT",
-                $playlistJson,
-                $this->getWebsiteAuthorizationHeaders()
+                $playlistJson
             );
 
-            return array('success' => true, 'message' => "Options updated successfully.");
+            return array('success' => true, 'message' => "Jukebox options updated successfully.");
         } catch (Exception $e) {
             return array('success' => false, 'message' => $e->getMessage());
         }
@@ -41,7 +39,7 @@ final class ShowPulseJukeboxOptions extends ShowPulseBase
 ?>
 <div class="container mt-5">
     <?php
-    $settingForm = new ShowPulseSettings();
+    $settingForm = new ShowPulseJukeboxOptions();
     $result = $settingForm->save();
     $playlists = scandir(GetDirSetting("playlists"));
 
@@ -73,7 +71,7 @@ final class ShowPulseJukeboxOptions extends ShowPulseBase
                         on your show's kiosk page.
                     </small>
                 </div>
-                <button type="submit" class="btn btn-primary">Save Settings</button>
+                <button type="submit" class="btn btn-primary">Save Options</button>
             </form>
         </div>
     </div>

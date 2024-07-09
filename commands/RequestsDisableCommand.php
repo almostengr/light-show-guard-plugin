@@ -18,10 +18,9 @@ final class RequestsDisableCommand extends ShowPulseBase implements ShowPulseCom
 
         $this->httpRequest(
             false,
-            "shows/request-off",
+            "shows/request-off/" . $this->getShowId(),
             'PUT',
-            null,
-            $this->getWebsiteAuthorizationHeaders()
+            null
         );
     }
 }
