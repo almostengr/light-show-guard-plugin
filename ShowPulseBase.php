@@ -11,7 +11,7 @@ require_once $commonFile;
 abstract class ShowPulseBase
 {
     private $token;
-    private $showId;
+    private $showUuid;
     private $websiteApiUrl;
 
     protected function httpRequest($forFpp, $route, $method = "GET", $data = null)
@@ -60,7 +60,7 @@ abstract class ShowPulseBase
 
     protected function getShowId()
     {
-        return $this->showId;
+        return $this->showUuid;
     }
 
     protected function executeFppCommand($command, $data = array())
@@ -103,7 +103,7 @@ abstract class ShowPulseBase
 
         $json = json_decode($contents, false);
 
-        $this->showId = $json->show_id;
+        $this->showUuid = $json->show_id;
         $this->token = $json->token;
         $this->websiteApiUrl = $json->host;
         return true;
@@ -120,6 +120,5 @@ final class ShowPulseResponseDto
 
 final class ShowPulseConstant
 {
-    const PLAYLIST = "playlist";
     const IDLE = 0;
 }

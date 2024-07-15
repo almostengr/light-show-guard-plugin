@@ -15,8 +15,8 @@
         "args": []
     },
     {
-        "name": "Show Pulse-Send Playlist as Options",
-        "script": "SendPlaylistCommand.php",
+        "name": "Show Pulse-Send Sequence Options",
+        "script": "SendSequencesCommand.php",
         "args": []
     }
 ]

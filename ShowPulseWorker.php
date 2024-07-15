@@ -40,16 +40,12 @@ final class ShowPulseWorker extends ShowPulseBase
     private $lastSequence;
     private $lastStatusId;
     private $lastSong;
-    // private $lastStatusCheckTime;
-    // private $lastRequestCheckTime;
     private $skipRequestCheck;
 
     public function __construct()
     {
         $this->failureCount = 0;
         $this->lastSequence = null;
-        // $this->lastStatusCheckTime = $this->fifteenMinutesAgo();
-        // $this->lastRequestCheckTime = $this->fifteenMinutesAgo();
     }
 
     public function getFailureCount()
@@ -159,8 +155,6 @@ final class ShowPulseWorker extends ShowPulseBase
         $this->lastSequence = $fppStatus->current_sequence;
         $this->lastSong = $fppStatus->current_song;
         $this->lastStatusId = $fppStatus->status;
-        // $this->lastStatusCheckTime = time();
-        // $this->skipRequestCheck = false;
     }
 
     /**
@@ -200,30 +194,30 @@ final class ShowPulseWorker extends ShowPulseBase
         }
 
         switch ($requestDto->data->sequence_filename) {
-            case "SP_STOP_IMMEDIATELY":
+            case "IMMEDIATE STOP":
                 $this->stopPlaylist(false);
                 break;
 
-            case "SP_RESTART_IMMEDIATELY":
+            case "IMMEDIATE RESTART":
                 $this->stopPlaylist(false);
                 $this->systemRestart();
                 break;
 
-            case "SP_SHUTDOWN_IMMEDIATELY":
+            case "IMMEDIATE SHUTDOWN":
                 $this->stopPlaylist(false);
                 $this->systemShutdown();
                 break;
 
-            case "SP_STOP_GRACEFULLY":
+            case "GRACEFUL STOP":
                 $this->stopPlaylist(false);
                 break;
 
-            case "SP_RESTART_GRACEFULLY":
+            case "GRACEFUL RESTART":
                 $this->stopPlaylist(true);
                 $this->systemRestart();
                 break;
 
-            case "SP_SHUTDOWN_GRACEFULLY":
+            case "GRACEFUL SHUTDOWN":
                 $this->stopPlaylist(true);
                 $this->systemShutdown();
                 break;
