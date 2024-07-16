@@ -13,11 +13,11 @@ while ($loadResult) {
     try {
         $fppStatus = $worker->getFppStatus();
 
-        $worker->postStatus($fppStatus);
+        $worker->createAndSendStatusToWebsite($fppStatus);
 
-        $request = $worker->getNextRequest();
+        $request = $worker->getNextRequestFromWebsite();
 
-        $worker->insertNextRequest($request, $fppStatus);
+        $worker->insertNextRequestToFpp($request, $fppStatus);
 
         $sleepTime = $worker->calculateSleepTime($fppStatus);
         sleep($sleepTime);

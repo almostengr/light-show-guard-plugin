@@ -2,6 +2,7 @@
 
 namespace App\Test;
 
+use App\ShowPulseConstant;
 use App\ShowPulseWorker;
 use PHPUnit\Framework\TestCase;
 
@@ -44,14 +45,14 @@ final class ShowPulseWorkerTest extends TestCase
     {
         $worker = new ShowPulseWorker();
 
-        $this->assertEquals(5, $worker->sleepShortValue());
+        $this->assertEquals(5, ShowPulseConstant::SLEEP_SHORT_VALUE);
     }
 
     public function testSleepLongValue()
     {
         $worker = new ShowPulseWorker();
 
-        $this->assertEquals(30, $worker->sleepLongValue());
+        $this->assertEquals(30, ShowPulseConstant::SLEEP_LONG_VALUE);
     }
 
     public function testCalculateSleepTime()
@@ -67,7 +68,7 @@ final class ShowPulseWorkerTest extends TestCase
     {
         $worker = new ShowPulseWorker();
 
-        $failures = $worker->maxFailuresAllowedValue();
+        $failures = ShowPulseConstant::MAX_FAILURES_ALLOWED;
 
         $this->assertEquals(5, $failures);
     }
