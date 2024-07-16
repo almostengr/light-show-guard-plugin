@@ -12,15 +12,15 @@ $loadResult = $worker->loadConfiguration();
 while ($loadResult) {
     try {
         $fppStatus = $worker->getFppStatus();
+
         $worker->postStatus($fppStatus);
 
-        $request = $worker->getNextRequest($fppStatus);
-        $requestInserted = $worker->insertNextRequest($request, $fppStatus);
+        $request = $worker->getNextRequest();
 
-        if (!$requestInserted) {
-            $sleepTime = $worker->calculateSleepTime($fppStatus);
-            sleep($sleepTime);
-        }
+        $worker->insertNextRequest($request, $fppStatus);
+
+        $sleepTime = $worker->calculateSleepTime($fppStatus);
+        sleep($sleepTime);
 
         $worker->resetFailureCount();
     } catch (Exception $e) {

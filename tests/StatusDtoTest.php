@@ -3,7 +3,7 @@
 namespace App\Tests;
 
 use PHPUnit\Framework\TestCase;
-use \App\StatusDto;
+use \App\StatusRequestDto;
 
 require_once "ShowPulseWorker.php";
 
@@ -14,13 +14,13 @@ final class StatusDtoTest extends TestCase
 {
     public function testConstructor()
     {
-        $dto = new StatusDto(4, "test.fseq", "test.mp3", 1, 5);
+        $dto = new StatusRequestDto(4, "test.fseq", "test.mp3", 1, 5);
         $this->assertEquals("test.fseq", $dto->sequence_filename);
     }
 
     public function testConstructorWithSpecialCharacterSequence()
     {
-        $dto = new StatusDto(0, 'test-flight_rainbow.fseq', "test-flight_rainbow.mp3", 1, 5);
+        $dto = new StatusRequestDto(0, 'test-flight_rainbow.fseq', "test-flight_rainbow.mp3", 1, 5);
 
         $this->assertEquals('test-flight rainbow', $dto->song_title);
         $this->assertEquals('test-flight_rainbow.fseq', $dto->sequence_filename);
@@ -28,7 +28,7 @@ final class StatusDtoTest extends TestCase
 
     public function testConstructorWithErrors()
     {
-        $dto = new StatusDto(5, 'testing.fseq', 'testing.mp3', 0, 5);
+        $dto = new StatusRequestDto(5, 'testing.fseq', 'testing.mp3', 0, 5);
 
         $this->assertEquals(5, $dto->warnings);
         $this->assertNotEquals(10, $dto->warnings);
@@ -36,7 +36,7 @@ final class StatusDtoTest extends TestCase
 
     public function testAssignMediaWithTitleAndArtist()
     {
-        $dto = new StatusDto(0, "test.fseq", 'test.mp3', 1, 5);
+        $dto = new StatusRequestDto(0, "test.fseq", 'test.mp3', 1, 5);
         $dto->assignMediaData("Foo", "Bar");
 
         $this->assertEquals("Foo", $dto->song_title);
@@ -45,7 +45,7 @@ final class StatusDtoTest extends TestCase
 
     public function testAssignMediaWithTitleAndNoArtist()
     {
-        $dto = new StatusDto(0, "test.fseq", 'test.mp3', 1, 5);
+        $dto = new StatusRequestDto(0, "test.fseq", 'test.mp3', 1, 5);
 
         $dto->assignMediaData("Foo", null);
 
@@ -55,7 +55,7 @@ final class StatusDtoTest extends TestCase
 
     public function testAssignMediaWithNoTitleNorArtist()
     {
-        $dto = new StatusDto(0, "test.fseq", 'test.mp3', 1, 5);
+        $dto = new StatusRequestDto(0, "test.fseq", 'test.mp3', 1, 5);
 
         $this->assertEquals("test", $dto->song_title);
         $this->assertEquals("test", $dto->song_title);

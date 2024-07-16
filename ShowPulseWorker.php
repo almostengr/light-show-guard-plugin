@@ -6,7 +6,7 @@ use Exception;
 
 require_once "ShowPulseBase.php";
 
-final class StatusDto
+final class StatusRequestDto
 {
     public $warnings;
     public $show_id;
@@ -34,18 +34,39 @@ final class StatusDto
     }
 }
 
+final class ShowPulseRequestResponseDto
+{
+    public $sequence_filename;
+    public $priority;
+
+    public function __construct($requestDto)
+    {
+        $this->sequence_filename = $requestDto->data->sequence_filename;
+        $this->priority = $requestDto->data->priority;
+    }
+
+    public function isLowPriority()
+    {
+        return $this->priority == 99;
+    }
+}
+
 final class ShowPulseWorker extends ShowPulseBase
 {
     private $failureCount;
     private $lastSequence;
-    private $lastStatusId;
     private $lastSong;
-    private $skipRequestCheck;
 
     public function __construct()
     {
         $this->failureCount = 0;
         $this->lastSequence = null;
+        $this->lastSong = null;
+    }
+
+    private function idleStatus()
+    {
+        return 0;
     }
 
     public function getFailureCount()
@@ -108,19 +129,14 @@ final class ShowPulseWorker extends ShowPulseBase
 
     public function postStatus($fppStatus)
     {
-        if ($fppStatus === null) {
-            return;
-        }
-
         if (
-            $this->lastSequence === $fppStatus->current_sequence &&
-            $this->lastSong === $fppStatus->current_song &&
-            $this->lastStatusId === $fppStatus->status
+            is_null($fppStatus) ||
+            ($this->lastSequence === $fppStatus->current_sequence && $this->lastSong === $fppStatus->current_song)
         ) {
             return;
         }
 
-        $statusDto = new StatusDto(
+        $statusDto = new StatusRequestDto(
             $fppStatus->warnings,
             $fppStatus->current_sequence,
             $fppStatus->current_song,
@@ -128,17 +144,12 @@ final class ShowPulseWorker extends ShowPulseBase
             $this->getShowId(),
         );
 
-        if ($fppStatus->status > 0 && $this->isNotNullOrEmpty($fppStatus->current_song)) {
-            $metaData = $this->httpRequest(
-                true,
-                "media/" . $fppStatus->current_song . "/meta"
-            );
+        if ($this->isNotNullOrEmpty($fppStatus->current_song)) {
+            $metaData = $this->httpRequest(true, "media/" . $fppStatus->current_song . "/meta");
 
             if ($this->isNotNullOrEmpty($metaData) && $this->isNotNullOrEmpty($metaData->format->tags)) {
                 $statusDto->assignMediaData($metaData->format->tags->title, $metaData->format->tags->artist);
             }
-        } else if ($fppStatus->status === 0) {
-            $statusDto->assignMediaData("Show Offline", "");
         }
 
         $response = $this->httpRequest(
@@ -154,25 +165,14 @@ final class ShowPulseWorker extends ShowPulseBase
 
         $this->lastSequence = $fppStatus->current_sequence;
         $this->lastSong = $fppStatus->current_song;
-        $this->lastStatusId = $fppStatus->status;
     }
 
     /**
      * @var ShowPulseResponseDto @responseDto
      *
      */
-    public function getNextRequest($fppStatus)
+    public function getNextRequest()
     {
-        if (is_null($fppStatus)) {
-            return null;
-        }
-
-        $secondsRemaining = intval($fppStatus->seconds_remaining);
-
-        if ($secondsRemaining > 5) {
-            return null;
-        }
-
         $responseDto = $this->httpRequest(
             false,
             "jukebox-requests/next/" . $this->getShowId(),
@@ -184,13 +184,18 @@ final class ShowPulseWorker extends ShowPulseBase
             $this->logError($responseDto->message);
         }
 
-        return $responseDto;
+        return new ShowPulseRequestResponseDto($responseDto);
     }
 
     public function insertNextRequest($requestDto, $fppStatus)
     {
         if (is_null($requestDto)) {
             return false;
+        }
+
+        $secondsRemaining = intval($fppStatus->seconds_remaining);
+        if ($secondsRemaining > 5 && $requestDto->isLowPriority()) {
+            return;
         }
 
         switch ($requestDto->data->sequence_filename) {
@@ -225,11 +230,9 @@ final class ShowPulseWorker extends ShowPulseBase
             default:
                 $this->executeFppCommand(
                     "Insert Playlist After Current",
-                    array($requestDto->data->sequence_filename, "-1", "-1", "false")
+                    array($requestDto->sequence_filename, "-1", "-1", "false")
                 );
         }
-
-        return true;
     }
 
     private function systemRestart()
@@ -250,7 +253,7 @@ final class ShowPulseWorker extends ShowPulseBase
         while ($isGracefulStop) {
             $status = $this->getFppStatus();
 
-            if ($status === ShowPulseConstant::IDLE) {
+            if ($status === $this->idleStatus()) {
                 break;
             }
 
@@ -264,6 +267,6 @@ final class ShowPulseWorker extends ShowPulseBase
             return $this->sleepShortValue();
         }
 
-        return $fppStatus->status === ShowPulseConstant::IDLE ? $this->sleepLongValue() : $this->sleepShortValue();
+        return $fppStatus->status === $this->idleStatus() ? $this->sleepLongValue() : $this->sleepShortValue();
     }
 }

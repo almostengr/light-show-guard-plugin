@@ -117,8 +117,3 @@ final class ShowPulseResponseDto
     public $message;
     public $data;
 }
-
-final class ShowPulseConstant
-{
-    const IDLE = 0;
-}
