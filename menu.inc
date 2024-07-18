@@ -11,13 +11,19 @@
 # entries to display additional menu items such as the 3 items under the
 # help menu in this example template.
 
-$menuEntries = Array(
-	Array(
-		'text' => 'Show Pulse Settings',
-		'type' => 'status',
-		'page' => 'ShowPulseJukeboxOptions.php',
+$menuEntries = array(
+	array(
+		'text' => 'Light Show Pulse Help',
+		'type' => 'help',
+		'page' => 'https://lightshowpulse.com/user-guide/fpp',
 		'wrap' => 1
 	),
+	array(
+		'text' => 'Light Show Pulse',
+		'type' => 'content',
+		'page' => 'ShowPulseJukeboxOptions.php',
+		'wrap' => 1,
+	)
 );
 
 ##############################################################################
@@ -26,24 +32,27 @@ $menuEntries = Array(
 # It is expected that two variables are already set:
 # $plugin - contains the name of the current plugin directory/repoName
 # $menu - contains the name of the menu section/type
-foreach ($menuEntries as $entry)
-{
+foreach ($menuEntries as $entry) {
 	if ($entry['type'] != $menu)
 		continue;
 
-	if (preg_match('/^http.?:\/\//', $entry['page']))
-	{
-		printf("<li><a href='%s' target='_blank'>%s</a></li>\n",
-			$entry['page'], $entry['text']);
-	}
-	else
-	{
+	if (preg_match('/^http.?:\/\//', $entry['page'])) {
+		printf(
+			"<li><a href='%s' target='_blank'>%s</a></li>\n",
+			$entry['page'],
+			$entry['text']
+		);
+	} else {
 		$nopage = '';
 		if (isset($entry['wrap']) && ($entry['wrap'] == 0))
 			$nopage = '&nopage=1';
 
-		printf("<li><a href='plugin.php?plugin=%s&page=%s%s'>%s</a></li>\n",
-			$plugin, $entry['page'], $nopage, $entry['text']);
+		printf(
+			"<li><a href='plugin.php?plugin=%s&page=%s%s'>%s</a></li>\n",
+			$plugin,
+			$entry['page'],
+			$nopage,
+			$entry['text']
+		);
 	}
 }
-?>

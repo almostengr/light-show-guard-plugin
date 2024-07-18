@@ -7,6 +7,11 @@ use Exception;
 
 require_once "..\ShowPulseBase.php";
 
+interface ShowPulseCommandInterface
+{
+    public function execute();
+}
+
 final class SendSequencesCommand extends ShowPulseBase implements ShowPulseCommandInterface
 {
     public function execute()
@@ -22,14 +27,15 @@ final class SendSequencesCommand extends ShowPulseBase implements ShowPulseComma
 
             $this->httpRequest(
                 false,
-                "shows/add-options/" . $this->getShowId(),
+                "shows/add-options/" . $this->getShowUuid(),
                 "PUT",
                 $sequenceOptions
             );
 
             return array('success' => true, 'message' => "Jukebox options updated successfully.");
-        } catch (Exception $e) {
-            return array('success' => false, 'message' => $e->getMessage());
+        } catch (Exception $exception) {
+            $this->logError($exception->getMessage());
+            return array('success' => false, 'message' => $exception->getMessage());
         }
     }
 }
@@ -46,7 +52,7 @@ final class RequestsEnableCommand extends ShowPulseBase implements ShowPulseComm
 
         $this->httpRequest(
             false,
-            "shows/request-on/" . $this->getShowId(),
+            "shows/request-on/" . $this->getShowUuid(),
             'PUT',
             null
         );
@@ -65,7 +71,7 @@ final class RequestsDisableCommand extends ShowPulseBase implements ShowPulseCom
 
         $this->httpRequest(
             false,
-            "shows/request-off/" . $this->getShowId(),
+            "shows/request-off/" . $this->getShowUuid(),
             'PUT',
             null
         );
@@ -84,7 +90,7 @@ final class RequestsDisableClearCommand extends ShowPulseBase implements ShowPul
 
         $this->httpRequest(
             false,
-            "shows/clear-off/" . $this->getShowId(),
+            "shows/clear-off/" . $this->getShowUuid(),
             'PUT',
             null
         );

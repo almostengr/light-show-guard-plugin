@@ -58,19 +58,9 @@ abstract class ShowPulseBase
         return null;
     }
 
-    protected function getShowId()
+    protected function getShowUuid()
     {
         return $this->showUuid;
-    }
-
-    protected function executeFppCommand($command, $data = array())
-    {
-        $args = $command;
-        foreach ($data as $value) {
-            $args .= "/$value";
-        }
-
-        $this->httpRequest(true, $args, "GET", $args);
     }
 
     public function logError($message)
@@ -110,20 +100,13 @@ abstract class ShowPulseBase
     }
 }
 
-final class ShowPulseResponseDto
-{
-    public $success;
-    public $failed;
-    public $message;
-    public $data;
-}
-
 final class ShowPulseConstant
 {
     public const FPP_STATUS_IDLE = 0;
     public const GRACEFUL_RESTART = "GRACEFUL RESTART";
     public const GRACEFUL_SHUTDOWN = "GRACEFUL SHUTDOWN";
     public const GRACEFUL_STOP = "GRACEFUL STOP";
+    public const HIGH_PRIORITY = 10;
     public const IMMEDIATE_RESTART = "IMMEDIATE RESTART";
     public const IMMEDIATE_SHUTDOWN = "IMMEDIATE SHUTDOWN";
     public const IMMEDIATE_STOP = "IMMEDIATE STOP";

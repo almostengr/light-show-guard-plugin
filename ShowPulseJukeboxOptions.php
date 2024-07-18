@@ -11,7 +11,6 @@ require_once "commands\CommandBase.php";
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $command = new SendSequencesCommand();
         $result = $command->execute();
-
         $alertClass = $result['success'] ? "alert-success" : "alert-danger";
         ?>
         <div class="alert <?= $alertClass; ?>" role="alert">
