@@ -1,22 +1,32 @@
 [
     {
         "name": "Show Pulse-Enable Requests",
-        "script": "RequestsEnableCommand.php",
+        "script": "RequestsEnableCommandRunner.php",
         "args": []
     },
     {
         "name": "Show Pulse-Disable Requests",
-        "script": "RequestsDisableCommand.php",
+        "script": "RequestsDisableCommandRunner.php",
         "args": []
     },
     {
         "name": "Show Pulse-Disable and Clear Requests",
-        "script": "RequestsDisableClearCommand.php",
+        "script": "RequestsDisableClearCommandRunner.php",
+        "args": []
+    },
+    {
+        "name": "Show Pulse-Insert Next Jukebox Selection",
+        "script": "InsertNextJukeboxSelectionCommandRunner.php",
+        "args": []
+    },
+    {
+        "name": "Show Pulse-Post Status To Website",
+        "script": "PostStatusToWebsiteCommandRunner.php",
         "args": []
     },
     {
         "name": "Show Pulse-Send Sequence Options",
-        "script": "SendSequencesCommand.php",
+        "script": "SendSequencesCommandRunner.php",
         "args": []
     }
 ]

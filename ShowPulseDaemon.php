@@ -2,47 +2,37 @@
 
 namespace App;
 
-use App\Commands\InsertNextJukeboxSelectionCommand;
-use App\Commands\PostStatusToWebsiteCommand;
+use App\Commands\InsertNextJukeboxSelectionCommandHandler;
+use App\Commands\PostStatusToWebsiteCommandHandler;
+use App\Commands\ShowPulseConstant;
 use Exception;
 
-require_once "ShowPulseWorker.php";
+require_once "commands/InsertNextJukeboxSelectionCommandHandler.php";
+require_once "commands/PostStatusToWebsiteCommandHandler.php";
 
-$worker = new ShowPulseWorker();
-$loadResult = $worker->loadConfiguration();
+$postStatusCommand = new PostStatusToWebsiteCommandHandler();
+$nextSelectionCommand = new InsertNextJukeboxSelectionCommandHandler();
 
-$postStatusCommand = new PostStatusToWebsiteCommand();
-$nextSelectionCommand = new InsertNextJukeboxSelectionCommand();
+$failureCount = 0;
+$delaySeconds = 2;
 
 while ($loadResult) {
     try {
-        // todo convert worker to commands by functionality
-        // ask about how to structure commands so that the code can be called. maybe have the command with all the code, and the CommandHandler that does the execution
-        // $postStatusCommand->execute();
-        // $nextSelectionCommand->execute();
-
-        $fppStatus = $worker->getFppStatus();
-
-        $worker->createAndSendStatusToWebsite($fppStatus);
-
-        $request = $worker->getNextRequestFromWebsite();
-
-        $worker->insertNextRequestToFpp($request, $fppStatus);
+        $postStatusCommand->execute();
+        $nextSelectionCommand->execute();
 
         $sleepTime = $worker->calculateSleepTime($fppStatus);
         sleep($sleepTime);
 
-        $worker->resetFailureCount();
+        $failureCount = 0;
     } catch (Exception $e) {
-        if ($worker->isBelowMaxFailureThreshold()) {
-            $message = $e->getMessage() . " (Attempt  $worker->failureCount)";
+        if ($failureCount < ShowPulseConstant::MAX_FAILURES_ALLOWED) {
+            $message = $e->getMessage() . " (Attempt  $failureCount)";
             $worker->logError($message);
+            $failureCount++;
         }
 
-        $defaultDelay = 2;
-        $sleepTime = $worker->getFailureCount() * $defaultDelay;
-
-        $worker->increaseFailureCount();
+        $sleepTime = $failureCount * $delaySeconds;
         sleep($sleepTime);
     }
 }

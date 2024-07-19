@@ -1,14 +1,16 @@
 <?php
 
-namespace App;
+namespace App\Commands;
 
-use Exception;
-
-$testing = false;
 $commonFile = $testing ? __DIR__ . "/tests/OptFppWwwCommonMock.php" : "/opt/fpp/www/common.php";
 require_once $commonFile;
 
-abstract class ShowPulseBase
+interface ShowPulseCommandHandlerInterface
+{
+    protected function execute();
+}
+
+abstract class BaseCommandHandler
 {
     private $token;
     private $showUuid;
@@ -17,7 +19,7 @@ abstract class ShowPulseBase
     protected function httpRequest($forFpp, $route, $method = "GET", $data = null)
     {
         if ($this->isNullOrEmpty($route)) {
-            throw new Exception("Invalid URL");
+            return $this->logError("Invalid URL");
         }
 
         $url = $this->websiteApiUrl;
@@ -46,16 +48,16 @@ abstract class ShowPulseBase
         $response = curl_exec($ch);
 
         if ($response === false) {
-            throw new Exception("cURL error: " . curl_error($ch));
+            return $this->logError("cURL error: " . curl_error($ch));
         }
 
         curl_close($ch);
 
-        if ($response !== null) {
-            return json_decode($response, true);
+        if ($response === null) {
+            return $this->logError("Bad response returned.");
         }
 
-        return null;
+        return json_decode($response, true);
     }
 
     protected function getShowUuid()
@@ -63,32 +65,30 @@ abstract class ShowPulseBase
         return $this->showUuid;
     }
 
-    public function logError($message)
+    protected function logError($message)
     {
         $currentDateTime = date('Y-m-d h:i:s A');
         error_log("$currentDateTime: $message");
+        return false;
     }
 
-    public function isNullOrEmpty($value)
+    protected function isNullOrEmpty($value)
     {
         return is_null($value) || empty($value);
     }
 
-    public function isNotNullOrEmpty($value)
+    protected function isNotNullOrEmpty($value)
     {
         return !$this->isNullOrEmpty($value);
     }
 
-    public function loadConfiguration(): bool
+    protected function loadConfiguration(): bool
     {
         $configFile = GetDirSetting("uploads") . "/showpulse.json";
         $contents = file_get_contents($configFile);
 
         if ($contents === false) {
-            $this->logError(
-                "Configuration file not found. Download configuration file contents from the Light Show Pulse website. Then restart FPPD."
-            );
-            return false;
+            return $this->logError(ShowPulseConstant::CONFIG_LOAD_ERROR);
         }
 
         $json = json_decode($contents, false);
@@ -98,10 +98,38 @@ abstract class ShowPulseBase
         $this->websiteApiUrl = $json->host;
         return true;
     }
+
+    protected function getStatusFromFpp()
+    {
+        $fppStatus = $this->httpRequest(true, "fppd/status");
+
+        if ($this->isNullOrEmpty($fppStatus)) {
+            return $this->logError("Unable to get latest status from FPP.");
+        }
+
+        return $fppStatus;
+    }
+
+    protected function postStatusToWebsite($statusDto)
+    {
+        $response = $this->httpRequest(
+            false,
+            "show-statuses/add/" . $this->getShowUuid(),
+            "POST",
+            $statusDto
+        );
+
+        if ($response->failed) {
+            return $this->logError("Unable to update show status. " . $response->message);
+        }
+
+        return $response;
+    }
 }
 
 final class ShowPulseConstant
 {
+    public const CONFIG_LOAD_ERROR = "Configuration file not found or unable to be loaded. Download configuration file contents from the Light Show Pulse website. Then restart FPPD.";
     public const FPP_STATUS_IDLE = 0;
     public const GRACEFUL_RESTART = "GRACEFUL RESTART";
     public const GRACEFUL_SHUTDOWN = "GRACEFUL SHUTDOWN";
@@ -110,8 +138,15 @@ final class ShowPulseConstant
     public const IMMEDIATE_RESTART = "IMMEDIATE RESTART";
     public const IMMEDIATE_SHUTDOWN = "IMMEDIATE SHUTDOWN";
     public const IMMEDIATE_STOP = "IMMEDIATE STOP";
-    public const LOW_PRIORITY = 99;
     public const MAX_FAILURES_ALLOWED = 5;
     public const SLEEP_SHORT_VALUE = 5;
     public const SLEEP_LONG_VALUE = 30;
+}
+
+final class ShowPulseResponseDto
+{
+    public $success;
+    public $failed;
+    public $message;
+    public $data;
 }
