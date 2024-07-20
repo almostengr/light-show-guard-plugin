@@ -18,7 +18,7 @@ final class JukeboxOptionsUpdateCommandHandler extends BaseCommandHandler implem
 
         $this->httpRequest(
             false,
-            "shows/add-options/" . $this->getShowUuid(),
+            "jukebox-options/add/" . $this->getShowUuid(),
             "PUT",
             $sequenceOptions
         );
