@@ -4,7 +4,7 @@ namespace App\Commands;
 
 require_once 'BaseCommandHandler.php';
 
-final class InsertNextJukeboxSelectionCommandHandler extends BaseCommandHandler implements ShowPulseCommandHandlerInterface
+final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler implements ShowPulseCommandHandlerInterface
 {
     public function execute()
     {
@@ -20,7 +20,7 @@ final class InsertNextJukeboxSelectionCommandHandler extends BaseCommandHandler 
 
     /**
      * Summary of getNextRequestFromWebsite
-     * @var ShowPulseResponseDto @responseDto
+     * @var ShowPulseApiResponseDto @responseDto
      * @return ShowPulseJukeboxSelectionResponseDto|bool
      */
     private function getNextSelectionFromWebsite()
@@ -159,7 +159,7 @@ final class ShowPulseJukeboxSelectionResponseDto
 
     /**
      * Summary of __construct
-     * @param ShowPulseResponseDto $responseDto
+     * @param ShowPulseApiResponseDto $responseDto
      */
     public function __construct($responseDto)
     {

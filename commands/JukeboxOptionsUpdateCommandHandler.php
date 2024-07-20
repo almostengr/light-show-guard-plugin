@@ -4,7 +4,7 @@ namespace App\Commands;
 
 require_once 'BaseCommandHandler.php';
 
-final class SendSequencesCommandHandler extends BaseCommandHandler implements ShowPulseCommandHandlerInterface
+final class JukeboxOptionsUpdateCommandHandler extends BaseCommandHandler implements ShowPulseCommandHandlerInterface
 {
     public function execute()
     {

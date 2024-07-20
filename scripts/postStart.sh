@@ -2,4 +2,4 @@
 
 echo "Running Show Pulse PostStart Script"
 
-/usr/bin/php /home/fpp/media/plugins/show-pulse-fpp/ShowPulseDaemon.php &
+/bin/bash /home/fpp/media/plugins/show-pulse-fpp/commands/daemonStart.sh

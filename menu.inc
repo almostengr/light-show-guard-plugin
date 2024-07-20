@@ -18,12 +18,6 @@ $menuEntries = array(
 		'page' => 'https://lightshowpulse.com/user-guide/fpp',
 		'wrap' => 1
 	),
-	array(
-		'text' => 'Light Show Pulse',
-		'type' => 'content',
-		'page' => 'ShowPulseJukeboxOptions.php',
-		'wrap' => 1,
-	)
 );
 
 ##############################################################################

@@ -30,7 +30,8 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
         }
 
         $statusDto = $this->createStatusDto($fppStatus);
-        $this->sendStatus($statusDto, $fppStatus);
+        $result = $this->postStatusToWebsite($statusDto);
+        $this->setLatestValues($result, $fppStatus);
         return true;
     }
 
@@ -63,18 +64,16 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
         return $statusDto;
     }
 
-    private function sendStatus($statusDto, $fppStatus)
+    private function setLatestValues($result, $fppStatus)
     {
-        $result = $this->postStatusToWebsite($statusDto);
-
-        if (!$result) {
+        if ($result) {
             $this->lastSequence = $fppStatus->current_sequence;
             $this->lastSong = $fppStatus->current_song;
         }
     }
 }
 
-final class ShowPulseResponseDto
+final class ShowPulseApiResponseDto
 {
     public $success;
     public $failed;

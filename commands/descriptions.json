@@ -1,22 +1,32 @@
 [
     {
-        "name": "Show Pulse-Enable Requests",
+        "name": "Show Pulse-Daemon Start",
+        "script": "daemonStart.sh",
+        "args": []
+    },
+    {
+        "name": "Show Pulse-Daemon Stop",
+        "script": "daemonStop.sh",
+        "args": []
+    },
+    {
+        "name": "Show Pulse-Requests Enabled",
         "script": "RequestsEnableCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Disable Requests",
+        "name": "Show Pulse-Requests Disabled",
         "script": "RequestsDisableCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Disable and Clear Requests",
+        "name": "Show Pulse-Requests Disabled and Clear",
         "script": "RequestsDisableClearCommandRunner.php",
         "args": []
     },
     {
         "name": "Show Pulse-Insert Next Jukebox Selection",
-        "script": "InsertNextJukeboxSelectionCommandRunner.php",
+        "script": "JukeboxSelectionInsertNextCommandRunner.php",
         "args": []
     },
     {
@@ -26,7 +36,7 @@
     },
     {
         "name": "Show Pulse-Send Sequence Options",
-        "script": "SendSequencesCommandRunner.php",
+        "script": "JukeboxOptionsUpdateCommandRunner.php",
         "args": []
     }
 ]

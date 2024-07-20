@@ -65,7 +65,7 @@ abstract class BaseCommandHandler
         return $this->showUuid;
     }
 
-    protected function logError($message)
+    public function logError($message)
     {
         $currentDateTime = date('Y-m-d h:i:s A');
         error_log("$currentDateTime: $message");
@@ -88,7 +88,7 @@ abstract class BaseCommandHandler
         $contents = file_get_contents($configFile);
 
         if ($contents === false) {
-            return $this->logError(ShowPulseConstant::CONFIG_LOAD_ERROR);
+            return $this->logError("Configuration file not found or unable to be loaded. Download configuration file contents from the Light Show Pulse website. Then restart FPPD.");
         }
 
         $json = json_decode($contents, false);
@@ -129,7 +129,6 @@ abstract class BaseCommandHandler
 
 final class ShowPulseConstant
 {
-    public const CONFIG_LOAD_ERROR = "Configuration file not found or unable to be loaded. Download configuration file contents from the Light Show Pulse website. Then restart FPPD.";
     public const FPP_STATUS_IDLE = 0;
     public const GRACEFUL_RESTART = "GRACEFUL RESTART";
     public const GRACEFUL_SHUTDOWN = "GRACEFUL SHUTDOWN";
@@ -140,10 +139,10 @@ final class ShowPulseConstant
     public const IMMEDIATE_STOP = "IMMEDIATE STOP";
     public const MAX_FAILURES_ALLOWED = 5;
     public const SLEEP_SHORT_VALUE = 5;
-    public const SLEEP_LONG_VALUE = 30;
+    public const DAEMON_FILE = "/home/fpp/media/plugins/show-pulse-fpp/daemon.run";
 }
 
-final class ShowPulseResponseDto
+final class ShowPulseApiResponseDto
 {
     public $success;
     public $failed;
