@@ -1,0 +1,14 @@
+on:
+  release:
+      types: [published]
+
+jobs:
+  update_package:
+      runs-on: ubuntu-latest
+      steps:
+      -   name: Packagist Update
+          uses: mnavarrocarter/packagist-update@v1.0.0
+          with:
+              username: almostengr
+              api_token: ${{ secrets.PACKAGIST_TOKEN }}
+              package_name: almostengr/show-pulse-fpp
