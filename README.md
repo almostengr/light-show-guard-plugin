@@ -27,7 +27,7 @@ composer require almostengr/show-pulse-fpp
 
 ## Setup
 
-See the [User Guide](https://lightshowpulse.com/pages/user-guide/fpp-plugin-quick-start) for how
+See the [User Guide](#) for how
 to configure the plugin.
 
 
