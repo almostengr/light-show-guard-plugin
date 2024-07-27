@@ -20,7 +20,7 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
 
     /**
      * Summary of getNextRequestFromWebsite
-     * @var ShowPulseApiResponseDto @responseDto
+     * @var ShowPulseApiResponseDto $responseDto
      * @return ShowPulseJukeboxSelectionResponseDto|bool
      */
     private function getNextSelectionFromWebsite()

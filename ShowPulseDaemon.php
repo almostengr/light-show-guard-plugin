@@ -16,9 +16,7 @@ $nextSelectionCommand = new JukeboxSelectionInsertNextCommandHandler();
 $failureCount = 0;
 $delaySeconds = 2;
 
-$daemonFileExists = file_exists(ShowPulseConstant::DAEMON_FILE);
-
-while ($daemonFileExists) {
+do {
     try {
         $postStatusCommand->execute();
         $nextSelectionCommand->execute();
@@ -38,6 +36,6 @@ while ($daemonFileExists) {
     }
 
     $daemonFileExists = file_exists(ShowPulseConstant::DAEMON_FILE);
-}
+} while ($daemonFileExists);
 
 $postStatusCommand->logError("Daemon stopped.");

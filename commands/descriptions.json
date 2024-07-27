@@ -1,41 +1,41 @@
 [
     {
-        "name": "Show Pulse-Daemon Start",
+        "name": "Light Show Pulse-Daemon Start",
         "script": "daemonStart.sh",
         "args": []
     },
     {
-        "name": "Show Pulse-Daemon Stop",
+        "name": "Light Show Pulse-Daemon Stop",
         "script": "daemonStop.sh",
         "args": []
     },
     {
-        "name": "Show Pulse-Requests Enabled",
+        "name": "Light Show Pulse-Requests Enabled",
         "script": "RequestsEnableCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Requests Disabled",
+        "name": "Light Show Pulse-Requests Disabled",
         "script": "RequestsDisableCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Requests Disabled and Clear",
+        "name": "Light Show Pulse-Requests Disabled and Clear",
         "script": "RequestsDisableClearCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Insert Next Jukebox Selection",
+        "name": "Light Show Pulse-Insert Next Jukebox Selection",
         "script": "JukeboxSelectionInsertNextCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Post Status To Website",
+        "name": "Light Show Pulse-Post Status To Website",
         "script": "PostStatusToWebsiteCommandRunner.php",
         "args": []
     },
     {
-        "name": "Show Pulse-Send Sequence Options",
+        "name": "Light Show Pulse-Send Sequence Options",
         "script": "JukeboxOptionsUpdateCommandRunner.php",
         "args": []
     }

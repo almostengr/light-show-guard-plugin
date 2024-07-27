@@ -16,18 +16,20 @@ abstract class BaseCommandHandler
     private $showUuid;
     private $websiteApiUrl;
 
-    protected function httpRequest($forFpp, $route, $method = "GET", $data = null)
+    protected function fppHttpRequest($route, $method = "GET", $data = null)
     {
-        if ($this->isNullOrEmpty($route)) {
-            return $this->logError("Invalid URL");
-        }
+        $headers = array();
 
-        $url = $this->websiteApiUrl;
-        if ($forFpp) {
-            $url = "https://127.0.0.1/api/";
-        } else {
-            array_push($headers, "Authorization: Bearer $this->token");
-        }
+        array_push($headers, "Authorization: Bearer $this->token");
+
+        $url = "https://127.0.0.1/api/";
+        return $this->httpRequest($url, $route, $method, $data);
+    }
+
+    protected function httpRequest($url, $route, $method = "GET", $data = null)
+    {
+        $headers = array();
+
 
         array_push($headers, "Content-Type: application/json");
         array_push($headers, "Accept: application/json");

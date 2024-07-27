@@ -11,8 +11,8 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
 
     public function __construct()
     {
-        $this->lastSequence = null;
-        $this->lastSong = null;
+        $this->lastSequence = "";
+        $this->lastSong = "";
     }
 
     public function execute()
@@ -31,7 +31,10 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
 
         $statusDto = $this->createStatusDto($fppStatus);
         $result = $this->postStatusToWebsite($statusDto);
-        $this->setLatestValues($result, $fppStatus);
+
+        if ($result) {
+            $this->setLatestValues($fppStatus);
+        }
         return true;
     }
 
@@ -64,12 +67,10 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
         return $statusDto;
     }
 
-    private function setLatestValues($result, $fppStatus)
+    private function setLatestValues($fppStatus)
     {
-        if ($result) {
-            $this->lastSequence = $fppStatus->current_sequence;
-            $this->lastSong = $fppStatus->current_song;
-        }
+        $this->lastSequence = $fppStatus->current_sequence;
+        $this->lastSong = $fppStatus->current_song;
     }
 }
 
