@@ -33,12 +33,6 @@ to configure the plugin.
 
 ## Version Numbering
 
-The version number for this plugin is in the following format. Using the example of
-
-```txt
-5.2024.07.26
-```
-
-"5" represents the major Falcon Pi Player version number that the plugin is designed for
-
+The version number for this plugin is in the following format. Using the example of "5.2024.07.26", "5" 
+represents the major Falcon Pi Player version number that the plugin is designed for and 
 "2024.07.26" represents the date, in YYYY-MM-DD format, that the release was created
