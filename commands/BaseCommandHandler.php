@@ -5,31 +5,11 @@ namespace App\Commands;
 $commonFile = $testing ? __DIR__ . "/tests/OptFppWwwCommonMock.php" : "/opt/fpp/www/common.php";
 require_once $commonFile;
 
-interface ShowPulseCommandHandlerInterface
-{
-    protected function execute();
-}
-
 abstract class BaseCommandHandler
 {
-    private $token;
-    private $showUuid;
-    private $websiteApiUrl;
-
-    protected function fppHttpRequest($route, $method = "GET", $data = null)
+    protected function httpRequest($route, $method = "GET", $data = null, $url = null, $headers = array())
     {
-        $headers = array();
-
-        array_push($headers, "Authorization: Bearer $this->token");
-
-        $url = "https://127.0.0.1/api/";
-        return $this->httpRequest($url, $route, $method, $data);
-    }
-
-    protected function httpRequest($url, $route, $method = "GET", $data = null)
-    {
-        $headers = array();
-
+        $url = is_null($url) ? ShowPulseConstant::FPP_URL : $url;
 
         array_push($headers, "Content-Type: application/json");
         array_push($headers, "Accept: application/json");
@@ -62,11 +42,6 @@ abstract class BaseCommandHandler
         return json_decode($response, true);
     }
 
-    protected function getShowUuid()
-    {
-        return $this->showUuid;
-    }
-
     public function logError($message)
     {
         $currentDateTime = date('Y-m-d h:i:s A');
@@ -84,7 +59,7 @@ abstract class BaseCommandHandler
         return !$this->isNullOrEmpty($value);
     }
 
-    protected function loadConfiguration(): bool
+    protected function loadConfiguration()
     {
         $configFile = GetDirSetting("uploads") . "/showpulse.json";
         $contents = file_get_contents($configFile);
@@ -93,17 +68,12 @@ abstract class BaseCommandHandler
             return $this->logError("Configuration file not found or unable to be loaded. Download configuration file contents from the Light Show Pulse website. Then restart FPPD.");
         }
 
-        $json = json_decode($contents, false);
-
-        $this->showUuid = $json->show_id;
-        $this->token = $json->token;
-        $this->websiteApiUrl = $json->host;
-        return true;
+        return new ShowPulseConfiguration($contents);
     }
 
     protected function getStatusFromFpp()
     {
-        $fppStatus = $this->httpRequest(true, "fppd/status");
+        $fppStatus = $this->httpRequest("fppd/status");
 
         if ($this->isNullOrEmpty($fppStatus)) {
             return $this->logError("Unable to get latest status from FPP.");
@@ -112,13 +82,14 @@ abstract class BaseCommandHandler
         return $fppStatus;
     }
 
-    protected function postStatusToWebsite($statusDto)
+    protected function postStatusToWebsite($statusDto, $configuration)
     {
         $response = $this->httpRequest(
-            false,
-            "show-statuses/add/" . $this->getShowUuid(),
+            "show-statuses/add/" . $configuration->getShowId,
             "POST",
-            $statusDto
+            $statusDto,
+            $configuration->getWebsiteUrl(),
+            $configuration->getTokenAsHeader()
         );
 
         if ($response->failed) {
@@ -127,27 +98,4 @@ abstract class BaseCommandHandler
 
         return $response;
     }
-}
-
-final class ShowPulseConstant
-{
-    public const FPP_STATUS_IDLE = 0;
-    public const GRACEFUL_RESTART = "GRACEFUL RESTART";
-    public const GRACEFUL_SHUTDOWN = "GRACEFUL SHUTDOWN";
-    public const GRACEFUL_STOP = "GRACEFUL STOP";
-    public const HIGH_PRIORITY = 10;
-    public const IMMEDIATE_RESTART = "IMMEDIATE RESTART";
-    public const IMMEDIATE_SHUTDOWN = "IMMEDIATE SHUTDOWN";
-    public const IMMEDIATE_STOP = "IMMEDIATE STOP";
-    public const MAX_FAILURES_ALLOWED = 5;
-    public const SLEEP_SHORT_VALUE = 5;
-    public const DAEMON_FILE = "/home/fpp/media/plugins/show-pulse-fpp/daemon.run";
-}
-
-final class ShowPulseApiResponseDto
-{
-    public $success;
-    public $failed;
-    public $message;
-    public $data;
 }

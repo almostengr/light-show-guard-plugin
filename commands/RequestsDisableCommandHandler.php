@@ -8,17 +8,17 @@ final class RequestsDisableCommandHandler extends BaseCommandHandler implements 
 {
     public function execute()
     {
-        $loadSuccessful = $this->loadConfiguration();
-
-        if (!$loadSuccessful) {
+        $configuration = $this->loadConfiguration();
+        if (!$configuration) {
             return false;
         }
 
         $this->httpRequest(
-            false,
-            "shows/request-off/" . $this->getShowUuid(),
+            "shows/request-off/" . $configuration->getShowId(),
             'PUT',
-            null
+            null,
+            $configuration->getWebsiteUrl(),
+            $configuration->getTokenAsHeader()
         );
     }
 }

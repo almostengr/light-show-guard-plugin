@@ -17,8 +17,8 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
 
     public function execute()
     {
-        $loadSuccessful = $this->loadConfiguration();
-        if (!$loadSuccessful) {
+        $configuration = $this->loadConfiguration();
+        if (!$configuration) {
             return false;
         }
 
@@ -29,12 +29,13 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
             return true;
         }
 
-        $statusDto = $this->createStatusDto($fppStatus);
-        $result = $this->postStatusToWebsite($statusDto);
+        $statusDto = $this->createStatusDto($fppStatus, $configuration);
+        $result = $this->postStatusToWebsite($statusDto, $configuration);
 
         if ($result) {
             $this->setLatestValues($fppStatus);
         }
+        
         return true;
     }
 
@@ -50,16 +51,16 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
         return true;
     }
 
-    private function createStatusDto($fppStatus)
+    private function createStatusDto($fppStatus, $configuration)
     {
-        $statusDto = new ShowPulseStatusRequestDto($fppStatus, $fppStatus->current_sequence, $this->getShowUuid());
+        $statusDto = new ShowPulseStatusRequestDto($fppStatus, $fppStatus->current_sequence, $configuration->getShowId());
 
         if ($this->isNullOrEmpty($fppStatus->current_song)) {
             return $statusDto;
         }
 
-        $metaData = $this->httpRequest(true, "media/" . $fppStatus->current_song . "/meta");
-
+        $url = "media/" . $fppStatus->current_song . "/meta";
+        $metaData = $this->httpRequest($url);
         if ($this->isNotNullOrEmpty($metaData) && $this->isNotNullOrEmpty($metaData->format->tags)) {
             $statusDto->assignMediaData($metaData->format->tags->title, $metaData->format->tags->artist);
         }
@@ -74,38 +75,3 @@ final class PostStatusToWebsiteCommandHandler extends BaseCommandHandler impleme
     }
 }
 
-final class ShowPulseApiResponseDto
-{
-    public $success;
-    public $failed;
-    public $message;
-    public $data;
-}
-
-final class ShowPulseStatusRequestDto
-{
-    public $warnings;
-    public $show_id;
-    public $sequence_filename;
-    public $song_filename;
-    public $song_title;
-    public $song_artist;
-    public $fpp_status_id;
-
-    public function __construct($fppStatus, $sequence_filename, $showId)
-    {
-        $this->show_id = $showId;
-        $this->fpp_status_id = $fppStatus->status;
-        $this->warnings = count($fppStatus->warnings);
-        $this->sequence_filename = $sequence_filename;
-        $this->song_filename = $fppStatus->current_song;
-        $this->song_title = str_replace("_", " ", str_replace(".fseq", "", $sequence_filename));
-        $this->song_artist = null;
-    }
-
-    public function assignMediaData($title, $artist)
-    {
-        $this->song_title = $title;
-        $this->song_artist = $artist;
-    }
-}

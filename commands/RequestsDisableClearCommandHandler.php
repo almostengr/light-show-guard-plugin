@@ -8,17 +8,17 @@ final class RequestsDisableClearCommandHandler extends BaseCommandHandler implem
 {
     public function execute()
     {
-        $loadSuccessful = $this->loadConfiguration();
-
-        if (!$loadSuccessful) {
+        $configuration = $this->loadConfiguration();
+        if (!$configuration) {
             return false;
         }
 
         $this->httpRequest(
-            false,
-            "shows/clear-off/" . $this->getShowUuid(),
+            "shows/clear-off/" . $configuration->getShowId(),
             'PUT',
-            null
+            null,
+            $configuration->getWebsiteUrl(),
+            $configuration->getTokenAsHeader()
         );
     }
 }

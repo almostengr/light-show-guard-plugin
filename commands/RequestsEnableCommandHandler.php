@@ -8,17 +8,17 @@ final class RequestsEnableCommandHandler extends BaseCommandHandler implements S
 {
     public function execute()
     {
-        $loadSuccessful = $this->loadConfiguration();
-
-        if (!$loadSuccessful) {
+        $configuration = $this->loadConfiguration();
+        if (!$configuration) {
             return false;
         }
 
         $this->httpRequest(
-            false,
-            "shows/request-on/" . $this->getShowUuid(),
+            "shows/request-on/" . $configuration->getShowId(),
             'PUT',
-            null
+            null,
+            $configuration->getWebsiteUrl(),
+            $configuration->getTokenAsHeader()
         );
     }
 }

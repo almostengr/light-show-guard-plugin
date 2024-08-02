@@ -8,14 +8,14 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
 {
     public function execute()
     {
-        $loadSuccessful = $this->loadConfiguration();
-        if (!$loadSuccessful) {
+        $configuration = $this->loadConfiguration();
+        if (!$configuration) {
             return false;
         }
 
         $fppStatus = $this->getStatusFromFpp();
-        $selectionResponse = $this->getNextSelectionFromWebsite();
-        $this->postNextSelectionToFpp($selectionResponse, $fppStatus);
+        $selectionResponse = $this->getNextSelectionFromWebsite($configuration);
+        $this->postNextSelectionToFpp($selectionResponse, $fppStatus, $configuration);
     }
 
     /**
@@ -23,13 +23,14 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
      * @var ShowPulseApiResponseDto $responseDto
      * @return ShowPulseJukeboxSelectionResponseDto|bool
      */
-    private function getNextSelectionFromWebsite()
+    private function getNextSelectionFromWebsite($configuration)
     {
         $responseDto = $this->httpRequest(
-            false,
-            "jukebox-selections/next/" . $this->getShowUuid(),
+            "jukebox-selections/next/" . $configuration->getShowId(),
             "PUT",
-            null
+            null,
+            $configuration->getWebsiteUrl(),
+            $configuration->getTokenAsHeader()
         );
 
         if (is_null($responseDto) || $responseDto->failed) {
@@ -43,7 +44,7 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
      * @param ShowPulseJukeboxSelectionResponseDto $selectionResponseDto
      * @param mixed $fppStatus
      */
-    private function postNextSelectionToFpp($selectionResponseDto, $fppStatus)
+    private function postNextSelectionToFpp($selectionResponseDto, $fppStatus, $configuration)
     {
         if (is_null($selectionResponseDto)) {
             return false;
@@ -57,42 +58,42 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
         switch ($selectionResponseDto->getSequenceFilename()) {
             case ShowPulseConstant::IMMEDIATE_STOP:
                 $this->stopPlaylist();
-                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_STOP, $this->getShowUuid());
-                $this->postStatusToWebsite($statusDto);
+                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_STOP, $configuration->getShowId());
+                $this->postStatusToWebsite($statusDto, $configuration);
                 break;
 
             case ShowPulseConstant::IMMEDIATE_RESTART:
                 $this->stopPlaylist();
                 $this->systemRestart();
-                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_RESTART, $this->getShowUuid());
-                $this->postStatusToWebsite($statusDto);
+                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_RESTART, $configuration->getShowId());
+                $this->postStatusToWebsite($statusDto, $configuration);
                 break;
 
             case ShowPulseConstant::IMMEDIATE_SHUTDOWN:
                 $this->stopPlaylist();
                 $this->systemShutdown();
-                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_SHUTDOWN, $this->getShowUuid());
-                $this->postStatusToWebsite($statusDto);
+                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_SHUTDOWN, $configuration->getShowId());
+                $this->postStatusToWebsite($statusDto, $configuration);
                 break;
 
             case ShowPulseConstant::GRACEFUL_STOP:
                 $this->gracefulStopPlaylist();
-                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_STOP, $this->getShowUuid());
-                $this->postStatusToWebsite($statusDto);
+                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_STOP, $configuration->getShowId());
+                $this->postStatusToWebsite($statusDto, $configuration);
                 break;
 
             case ShowPulseConstant::GRACEFUL_RESTART:
                 $this->gracefulStopPlaylist();
                 $this->systemRestart();
-                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_RESTART, $this->getShowUuid());
-                $this->postStatusToWebsite($statusDto);
+                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_RESTART, $configuration->getShowId());
+                $this->postStatusToWebsite($statusDto, $configuration);
                 break;
 
             case ShowPulseConstant::GRACEFUL_SHUTDOWN:
                 $this->gracefulStopPlaylist();
                 $this->systemShutdown();
-                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_SHUTDOWN, $this->getShowUuid());
-                $this->postStatusToWebsite($statusDto);
+                $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_SHUTDOWN, $configuration->getShowId());
+                $this->postStatusToWebsite($statusDto, $configuration);
                 break;
 
             default:
@@ -112,22 +113,22 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
 
     private function systemRestart()
     {
-        return $this->httpRequest(true, "system/restart");
+        return $this->httpRequest("system/restart");
     }
 
     private function systemShutdown()
     {
-        return $this->httpRequest(true, "system/shutdown");
+        return $this->httpRequest("system/shutdown");
     }
 
     private function stopPlaylist()
     {
-        return $this->httpRequest(true, "playlists/stop");
+        return $this->httpRequest("playlists/stop");
     }
 
     private function gracefulStopPlaylist()
     {
-        $this->httpRequest(true, "playlists/stopgracefully");
+        $this->httpRequest("playlists/stopgracefully");
 
         $maxLoops = 180; // 180 = 5 seconds loops during 5 minutes
         for ($i = 0; $i < $maxLoops; $i++) {
@@ -148,32 +149,6 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
             $args .= "/$value";
         }
 
-        $this->httpRequest(true, $args, "GET", $args);
-    }
-}
-
-final class ShowPulseJukeboxSelectionResponseDto
-{
-    private $sequence_filename;
-    private $priority;
-
-    /**
-     * Summary of __construct
-     * @param ShowPulseApiResponseDto $responseDto
-     */
-    public function __construct($responseDto)
-    {
-        $this->sequence_filename = $responseDto->data->sequence_filename;
-        $this->priority = $responseDto->data->priority;
-    }
-
-    public function isHighPriority()
-    {
-        return $this->priority == ShowPulseConstant::HIGH_PRIORITY;
-    }
-
-    public function getSequenceFilename()
-    {
-        return $this->sequence_filename;
+        $this->httpRequest($args, "GET", $args);
     }
 }

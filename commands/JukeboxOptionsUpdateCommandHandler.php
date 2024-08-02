@@ -8,8 +8,8 @@ final class JukeboxOptionsUpdateCommandHandler extends BaseCommandHandler implem
 {
     public function execute()
     {
-        $loadSuccessful = $this->loadConfiguration();
-        if (!$loadSuccessful) {
+        $configuration = $this->loadConfiguration();
+        if (!$configuration) {
             return false;
         }
 
@@ -17,10 +17,11 @@ final class JukeboxOptionsUpdateCommandHandler extends BaseCommandHandler implem
         $sequenceOptions = scandir($sequenceDirectory);
 
         $this->httpRequest(
-            false,
-            "jukebox-options/add/" . $this->getShowUuid(),
+            "jukebox-options/add/" . $configuration->getShowId(),
             "PUT",
-            $sequenceOptions
+            $sequenceOptions,
+            $configuration->getWebsiteUrl(),
+            $configuration->getTokenAsHeader()
         );
     }
 }

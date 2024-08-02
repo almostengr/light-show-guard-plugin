@@ -1,16 +1,25 @@
 <?php
 
-namespace Tests;
+namespace App\Commands\Tests;
 
-require_once '../commands/ShowPulseJukeboxSelectionResponseDto.php';
+use App\Commands\ShowPulseApiResponseDto;
+use App\Commands\ShowPulseConstant;
+use App\Commands\ShowPulseJukeboxSelectionResponseDto;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 
+/**
+ * Summary of ShowPulseJukeboxSelectionResponseDtoTest
+ * @covers ShowPulseJukeboxSelectionResponseDto
+ */
 final class ShowPulseJukeboxSelectionResponseDtoTest extends TestCase
 {
     public function testIsHighPriority(): void
     {
-        $responseDto = stdClass();
-        $responseDto->$data->priority = ShowPulseConstant::HIGH_PRIORITY;
-        $responseDto->$data->sequence_filename = "test.fseq";
+        $responseDto = new ShowPulseApiResponseDto();
+        $responseDto->data = new stdClass();
+        $responseDto->data->priority = ShowPulseConstant::HIGH_PRIORITY;
+        $responseDto->data->sequence_filename = "test.fseq";
 
         $dto = new ShowPulseJukeboxSelectionResponseDto($responseDto);
 
@@ -19,9 +28,10 @@ final class ShowPulseJukeboxSelectionResponseDtoTest extends TestCase
     
     public function testGetSequenceFilename(): void
     {
-        $responseDto = stdClass();
-        $responseDto->$data->priority = ShowPulseConstant::HIGH_PRIORITY;
-        $responseDto->$data->sequence_filename = "test.fseq";
+        $responseDto = new ShowPulseApiResponseDto();
+        $responseDto->data = new stdClass();
+        $responseDto->data->priority = ShowPulseConstant::HIGH_PRIORITY;
+        $responseDto->data->sequence_filename = "test.fseq";
 
         $dto = new ShowPulseJukeboxSelectionResponseDto($responseDto);
 

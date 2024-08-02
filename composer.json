@@ -2,16 +2,16 @@
     "name": "almostengr/show-pulse-fpp",
     "description": "Light Show Pulse plugin for Falcon Pi Player",
     "type": "project",
-    "homepage": "https://github.com/almostengr/show-pulse-fpp",
-    "keywords": ["fpp", "falcon pi player", "fpp plugin"],
     "require": {
-        "phpunit/phpunit": "^11.2",
-        "php": ">=7.0"
+        "php": "7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
     },
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Almostengineer\\ShowPulseFpp\\": "src/"
+            "App\\Commands\\": "commands/"
         }
     },
     "authors": [

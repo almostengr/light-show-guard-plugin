@@ -1,14 +1,14 @@
 <?php
 
-namespace App;
+namespace App\Commands;
 
 use App\Commands\JukeboxSelectionInsertNextCommandHandler;
 use App\Commands\PostStatusToWebsiteCommandHandler;
 use App\Commands\ShowPulseConstant;
 use Exception;
 
-require_once "commands/InsertNextJukeboxSelectionCommandHandler.php";
-require_once "commands/PostStatusToWebsiteCommandHandler.php";
+require_once "InsertNextJukeboxSelectionCommandHandler.php";
+require_once "PostStatusToWebsiteCommandHandler.php";
 
 $postStatusCommand = new PostStatusToWebsiteCommandHandler();
 $nextSelectionCommand = new JukeboxSelectionInsertNextCommandHandler();
