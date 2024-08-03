@@ -4,7 +4,7 @@ namespace App\Commands;
 
 require_once 'BaseCommandHandler.php';
 
-final class JukeboxOptionsUpdateCommandHandler extends BaseCommandHandler implements ShowPulseCommandHandlerInterface
+final class SequenceUpdateCommandHandler extends BaseCommandHandler implements ShowPulseCommandHandlerInterface
 {
     public function execute()
     {
@@ -13,7 +13,7 @@ final class JukeboxOptionsUpdateCommandHandler extends BaseCommandHandler implem
             return false;
         }
 
-        $sequenceDirectory = GetDirSetting("sequences");
+        $sequenceDirectory = "/home/fpp/media/sequences";
         $sequenceOptions = scandir($sequenceDirectory);
 
         $this->httpRequest(

@@ -18,14 +18,14 @@ final class ShowPulseStatusRequestDto
         $this->fpp_status_id = $fppStatus->status;
         $this->warnings = count($fppStatus->warnings) ?? 0;
         $this->song_filename = $fppStatus->current_song;
-        $this->song_title = str_replace("_", " ", str_replace(".fseq", "", $sequence_filename));
-        $this->song_artist = null;
+        $this->display1 = str_replace("_", " ", str_replace(".fseq", "", $sequence_filename));
+        $this->display2 = null;
     }
 
     public function assignMediaData($title, $artist)
     {
-        $this->song_title = $title;
-        $this->song_artist = $artist;
+        $this->display1 = $title;
+        $this->display2 = $artist;
     }
 
     public function getWarnings()

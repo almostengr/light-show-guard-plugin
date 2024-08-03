@@ -1,12 +1,12 @@
 [
     {
         "name": "Light Show Pulse-Daemon Start",
-        "script": "daemonStart.sh",
+        "script": "DaemonStartCommandRunner.sh",
         "args": []
     },
     {
         "name": "Light Show Pulse-Daemon Stop",
-        "script": "daemonStop.sh",
+        "script": "DaemonStopCommandRunner.php",
         "args": []
     },
     {
@@ -25,18 +25,13 @@
         "args": []
     },
     {
-        "name": "Light Show Pulse-Insert Next Jukebox Selection",
-        "script": "JukeboxSelectionInsertNextCommandRunner.php",
-        "args": []
-    },
-    {
         "name": "Light Show Pulse-Post Status To Website",
-        "script": "PostStatusToWebsiteCommandRunner.php",
+        "script": "StatusPostToWebsiteCommandRunner.php",
         "args": []
     },
     {
-        "name": "Light Show Pulse-Send Sequence Options",
-        "script": "JukeboxOptionsUpdateCommandRunner.php",
+        "name": "Light Show Pulse-Update Sequence Options",
+        "script": "SequenceUpdateCommandRunner.php",
         "args": []
     }
 ]

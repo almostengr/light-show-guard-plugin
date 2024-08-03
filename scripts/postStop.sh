@@ -2,4 +2,6 @@
 
 echo "Stopping Show Pulse Daemon"
 
-/bin/bash /home/fpp/media/plugins/show-pulse-fpp/commands/daemonStop.sh
+/bin/php /home/fpp/media/plugins/show-pulse-fpp/commands/DaemonStopCommandRunner.php
+
+echo "Done"

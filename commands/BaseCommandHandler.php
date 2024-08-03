@@ -2,8 +2,6 @@
 
 namespace App\Commands;
 
-$commonFile = $testing ? __DIR__ . "/tests/OptFppWwwCommonMock.php" : "/opt/fpp/www/common.php";
-require_once $commonFile;
 
 abstract class BaseCommandHandler
 {
@@ -61,7 +59,7 @@ abstract class BaseCommandHandler
 
     protected function loadConfiguration()
     {
-        $configFile = GetDirSetting("uploads") . "/showpulse.json";
+        $configFile = "/home/fpp/media/uploads/showpulse.json";
         $contents = file_get_contents($configFile);
 
         if ($contents === false) {

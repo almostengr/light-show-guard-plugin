@@ -16,4 +16,5 @@ final class ShowPulseConstant
     public const SLEEP_SHORT_VALUE = 5;
     public const DAEMON_FILE = "/home/fpp/media/plugins/show-pulse-fpp/daemon.run";
     public const FPP_URL = "https://127.0.0.1/api";
+    public const DELAY_SECONDS = 2;
 }
