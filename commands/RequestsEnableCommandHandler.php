@@ -14,7 +14,7 @@ final class RequestsEnableCommandHandler extends BaseCommandHandler implements S
         }
 
         $this->httpRequest(
-            "shows/request-on/" . $configuration->getShowId(),
+            "shows/requeston/" . $configuration->getShowId(),
             'PUT',
             null,
             $configuration->getWebsiteUrl(),

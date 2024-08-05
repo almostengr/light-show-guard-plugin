@@ -17,7 +17,7 @@ final class SequenceUpdateCommandHandler extends BaseCommandHandler implements S
         $sequenceOptions = scandir($sequenceDirectory);
 
         $this->httpRequest(
-            "jukebox-options/add/" . $configuration->getShowId(),
+            "sequences/add/" . $configuration->getShowId(),
             "PUT",
             $sequenceOptions,
             $configuration->getWebsiteUrl(),

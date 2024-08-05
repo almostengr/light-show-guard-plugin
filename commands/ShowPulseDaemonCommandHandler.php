@@ -67,7 +67,7 @@ final class ShowPulseDaemonCommandHandler extends BaseCommandHandler implements 
     private function getNextSelectionFromWebsite($configuration)
     {
         $responseDto = $this->httpRequest(
-            "jukebox-selections/next/" . $configuration->getShowId(),
+            "selections/next/" . $configuration->getShowId(),
             "PUT",
             null,
             $configuration->getWebsiteUrl(),
