@@ -90,7 +90,7 @@ abstract class BaseCommandHandler
             $configuration->getTokenAsHeader()
         );
 
-        if ($response->failed) {
+        if (!$response) {
             return $this->logError("Unable to update show status. " . $response->message);
         }
 

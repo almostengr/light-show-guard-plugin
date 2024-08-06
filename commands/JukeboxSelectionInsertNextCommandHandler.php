@@ -64,16 +64,16 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
 
             case ShowPulseConstant::IMMEDIATE_RESTART:
                 $this->stopPlaylist();
-                $this->systemRestart();
                 $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_RESTART, $configuration->getShowId());
                 $this->postStatusToWebsite($statusDto, $configuration);
+                $this->systemRestart();
                 break;
 
             case ShowPulseConstant::IMMEDIATE_SHUTDOWN:
                 $this->stopPlaylist();
-                $this->systemShutdown();
                 $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::IMMEDIATE_SHUTDOWN, $configuration->getShowId());
                 $this->postStatusToWebsite($statusDto, $configuration);
+                $this->systemShutdown();
                 break;
 
             case ShowPulseConstant::GRACEFUL_STOP:
@@ -84,16 +84,16 @@ final class JukeboxSelectionInsertNextCommandHandler extends BaseCommandHandler 
 
             case ShowPulseConstant::GRACEFUL_RESTART:
                 $this->gracefulStopPlaylist();
-                $this->systemRestart();
                 $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_RESTART, $configuration->getShowId());
                 $this->postStatusToWebsite($statusDto, $configuration);
+                $this->systemRestart();
                 break;
 
             case ShowPulseConstant::GRACEFUL_SHUTDOWN:
                 $this->gracefulStopPlaylist();
-                $this->systemShutdown();
                 $statusDto = new ShowPulseStatusRequestDto($fppStatus, ShowPulseConstant::GRACEFUL_SHUTDOWN, $configuration->getShowId());
                 $this->postStatusToWebsite($statusDto, $configuration);
+                $this->systemShutdown();
                 break;
 
             default:
