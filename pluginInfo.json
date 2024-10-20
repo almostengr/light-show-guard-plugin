@@ -11,15 +11,12 @@
 		{
 			"minFPPVersion": "6.0",
 			"maxFPPVersion": "0",
-			"branch": "initial",
+			"branch": "main",
 			"sha": "",
 			"dependencies": {
-			    "plugins": [
-				],
-			    "packages": [
-				],
-				"scripts": [
-				]
+				"plugins": [],
+				"packages": [],
+				"scripts": []
 			}
 		}
 	]
