@@ -1,37 +1,37 @@
 [
     {
         "name": "Light Show Pulse-Daemon Start",
-        "script": "DaemonStartCommandRunner.sh",
+        "script": "DaemonStartCommand.sh",
         "args": []
     },
     {
         "name": "Light Show Pulse-Daemon Stop",
-        "script": "DaemonStopCommandRunner.php",
+        "script": "DaemonStopCommand.php",
         "args": []
     },
     {
-        "name": "Light Show Pulse-Requests Enabled",
-        "script": "RequestsEnableCommandRunner.php",
+        "name": "Light Show Pulse-Accept Requests",
+        "script": "ShowsAcceptRequestsCommand.php",
         "args": []
     },
     {
-        "name": "Light Show Pulse-Requests Disabled",
-        "script": "RequestsDisableCommandRunner.php",
+        "name": "Light Show Pulse-Reject Requests",
+        "script": "ShowsRejectRequestsCommand.php",
         "args": []
     },
     {
-        "name": "Light Show Pulse-Requests Disabled and Clear",
-        "script": "RequestsDisableClearCommandRunner.php",
+        "name": "Light Show Pulse-Clear All Requests",
+        "script": "RequestedSelectionsClearCommand.php",
         "args": []
     },
     {
         "name": "Light Show Pulse-Post Status To Website",
-        "script": "StatusPostToWebsiteCommandRunner.php",
+        "script": "ShowStatusesAddCommand.php",
         "args": []
     },
     {
-        "name": "Light Show Pulse-Update Sequence Options",
-        "script": "SequenceUpdateCommandRunner.php",
+        "name": "Light Show Pulse-Update Selection Options",
+        "script": "SelectionOptionsAddCommand.php",
         "args": []
     }
 ]

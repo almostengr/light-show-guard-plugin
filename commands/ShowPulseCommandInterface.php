@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-interface ShowPulseCommandHandlerInterface
+interface ShowPulseCommandInterface
 {
     public function execute();
 }

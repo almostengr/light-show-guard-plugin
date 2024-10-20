@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-final class ShowPulseJukeboxSelectionResponseDto
+final class ShowPulseSelectionResponseDto
 {
     private $sequence_filename;
     private $priority;
@@ -17,9 +17,9 @@ final class ShowPulseJukeboxSelectionResponseDto
         $this->priority = $responseDto->data->priority;
     }
 
-    public function isHighPriority()
+    public function getPriority()
     {
-        return $this->priority == ShowPulseConstant::HIGH_PRIORITY;
+        return $this->priority;
     }
 
     public function getSequenceFilename()

@@ -2,7 +2,7 @@
 
 namespace App\Test;
 
-use App\Commands\ShowPulseConfiguration;
+use App\Commands\ShowPulseConfigurationResponse;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,21 +21,21 @@ final class ShowPulseConfigurationTest extends TestCase
 
     public function testGetShowId(): void
     {
-        $configuration = new ShowPulseConfiguration($this->rawJson);
+        $configuration = new ShowPulseConfigurationResponse($this->rawJson);
 
         $this->assertEquals("testingTheShowId", $configuration->getShowId());
     }
 
     public function testGetWebsiteUrl(): void
     {
-        $configuration = new ShowPulseConfiguration($this->rawJson);
+        $configuration = new ShowPulseConfigurationResponse($this->rawJson);
 
         $this->assertEquals("https://rhtservices.net", $configuration->getWebsiteUrl());
     }
 
     public function testTokenAsHeader(): void
     {
-        $configuration = new ShowPulseConfiguration($this->rawJson);
+        $configuration = new ShowPulseConfigurationResponse($this->rawJson);
 
         $this->assertIsArray($configuration->getTokenAsHeader());
         $this->assertContains("Authorization: Bearer thisIsATestTokenWithSomeExtraCharacters",$configuration->getTokenAsHeader());

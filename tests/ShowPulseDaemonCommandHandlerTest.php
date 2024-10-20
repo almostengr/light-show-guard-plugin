@@ -2,16 +2,16 @@
 
 namespace App\Test;
 
-use App\Commands\ShowPulseDaemonCommandHandler;
+use App\Commands\DaemonCommand;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 /**
- * Summary of ShowPulseDaemonCommandHandlerTest
+ * Summary of DaemonCommandTest
  * 
- * @covers ShowPulseDaemonCommandHandler
+ * @covers DaemonCommand
  */
-final class ShowPulseDaemonCommandHandlerTest extends TestCase
+final class DaemonCommandTest extends TestCase
 {
     public function testShouldPostStatus_WhenSongAndSequenceSame(): void
     {
@@ -22,7 +22,7 @@ final class ShowPulseDaemonCommandHandlerTest extends TestCase
         $fppStatus->current_sequence = "The Song That Doesn't End.fseq";
         $fppStatus->current_song = "The Song That Doesn't End - Lamp Chop Play Along.mp3";
 
-        $command = new ShowPulseDaemonCommandHandler();
+        $command = new DaemonCommand();
         $result = $command->shouldPostStatus($fppStatus, $lastSequence, $lastSong);
 
         $this->assertFalse($result);
@@ -37,7 +37,7 @@ final class ShowPulseDaemonCommandHandlerTest extends TestCase
         $fppStatus->current_sequence = "Disco Santa - Holiday Express.fseq";
         $fppStatus->current_song = "Disco Santa - Holiday Express.mp3";
 
-        $command = new ShowPulseDaemonCommandHandler();
+        $command = new DaemonCommand();
         $result = $command->shouldPostStatus($fppStatus, $lastSequence, $lastSong);
 
         $this->assertTrue($result);

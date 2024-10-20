@@ -3,8 +3,8 @@
 namespace App\Commands\Tests;
 
 use App\Commands\ShowPulseApiResponseDto;
-use App\Commands\ShowPulseConstant;
-use App\Commands\ShowPulseJukeboxSelectionResponseDto;
+use App\Commands\self;
+use App\Commands\ShowPulseSelectionResponseDto;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -18,10 +18,10 @@ final class ShowPulseJukeboxSelectionResponseDtoTest extends TestCase
     {
         $responseDto = new ShowPulseApiResponseDto();
         $responseDto->data = new stdClass();
-        $responseDto->data->priority = ShowPulseConstant::HIGH_PRIORITY;
+        $responseDto->data->priority = self::HIGH_PRIORITY;
         $responseDto->data->sequence_filename = "test.fseq";
 
-        $dto = new ShowPulseJukeboxSelectionResponseDto($responseDto);
+        $dto = new ShowPulseSelectionResponseDto($responseDto);
 
         $this->assertTrue($dto->isHighPriority());
     }
@@ -30,10 +30,10 @@ final class ShowPulseJukeboxSelectionResponseDtoTest extends TestCase
     {
         $responseDto = new ShowPulseApiResponseDto();
         $responseDto->data = new stdClass();
-        $responseDto->data->priority = ShowPulseConstant::HIGH_PRIORITY;
+        $responseDto->data->priority = self::HIGH_PRIORITY;
         $responseDto->data->sequence_filename = "test.fseq";
 
-        $dto = new ShowPulseJukeboxSelectionResponseDto($responseDto);
+        $dto = new ShowPulseSelectionResponseDto($responseDto);
 
         $this->assertEquals("test.fseq", $dto->getSequenceFilename());
     }

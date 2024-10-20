@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-final class ShowPulseConfiguration
+final class ShowPulseConfigurationResponse
 {
     private $showId;
     private $token;
