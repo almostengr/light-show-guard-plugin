@@ -25,11 +25,6 @@
         "args": []
     },
     {
-        "name": "Light Show Pulse-Post Status To Website",
-        "script": "ShowStatusesAddCommand.php",
-        "args": []
-    },
-    {
         "name": "Light Show Pulse-Update Selection Options",
         "script": "SelectionOptionsAddCommand.php",
         "args": []

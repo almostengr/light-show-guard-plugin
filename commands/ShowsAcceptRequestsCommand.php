@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Commands;
+namespace App;;
 
 use Exception;
 
@@ -11,15 +11,16 @@ final class ShowsAcceptRequestsCommand extends BaseCommand implements ShowPulseC
     public function execute()
     {
         try {
-            $this->webHttpRequest(
-                "api/shows/accept-requests/" . $this->configuration->getShowId(),
-                'PUT'
-            );
-        } catch (Exception) {
+            $response = $this->getShow();
+            $show = $response->getData();
+            $show['accepting_requests_id'] = 2;
+            $this->updateShow($show);
+            $this->completed();
+        } catch (Exception $exception) {
+            $this->logError($exception->getMessage());
         }
     }
 }
 
 $command = new ShowsAcceptRequestsCommand();
 $command->execute();
-$command->completed();

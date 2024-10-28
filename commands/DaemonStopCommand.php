@@ -1,15 +1,21 @@
 <?php
 
-namespace App\Commands;
+namespace App;
+
+use Exception;
 
 final class DaemonStopCommand extends BaseCommand implements ShowPulseCommandInterface
 {
     public function execute()
     {
-        unlink(self::DAEMON_FILE);
+        try {
+            unlink(self::DAEMON_FILE);
+            $this->completed();
+        } catch (Exception $exception) {
+            $this->logError($exception->getMessage());
+        }
     }
 }
 
 $command = new DaemonStopCommand();
 $command->execute();
-$command->completed();

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Commands;
+namespace App;;
 
 use Exception;
 
@@ -12,12 +12,13 @@ final class RequestedSelectionsGetNextCommand extends BaseCommand implements Sho
     {
         try {
             $fppStatus = $this->getStatusFromFpp();
-            $this->requestedSelectionGetNext($fppStatus);
-        } catch (Exception) {
+            $this->getNextRequestedSelection($fppStatus);
+            $this->completed();
+        } catch (Exception $exception) {
+            $this->logError($exception->getMessage());
         }
     }
 }
 
 $command = new RequestedSelectionsGetNextCommand();
 $command->execute();
-$command->completed();

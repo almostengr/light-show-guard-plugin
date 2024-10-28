@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Commands;
+namespace App;;
 
 use Exception;
 
@@ -15,23 +15,24 @@ abstract class BaseCommand
     protected const IMMEDIATE_RESTART = "IMMEDIATE RESTART";
     protected const IMMEDIATE_SHUTDOWN = "IMMEDIATE SHUTDOWN";
     protected const IMMEDIATE_STOP = "IMMEDIATE STOP";
+    protected const FPP_STATUS_IDLE_ID = 0;
 
     public function __construct()
     {
-        $this->configuration = $this->loadConfiguration();
+        $this->loadConfiguration();
     }
 
     /**
      * @param ShowPulseSelectionResponseDto $selectionResponseDto
      * @param mixed $fppStatus
      */
-    protected function postNextRequestedSelectionToFpp($selectionResponseDto, $fppStatus)
+    protected function postNextRequestedSelectionToFpp($data, $fppStatus)
     {
-        if (is_null($selectionResponseDto)) {
+        if (is_null($data)) {
             return false;
         }
 
-        switch ($selectionResponseDto->getSequenceFilename()) {
+        switch ($data['playlist_name']) {
             case self::IMMEDIATE_STOP:
                 $this->stopPlaylist();
                 $this->postStatusToWebsite($fppStatus, self::IMMEDIATE_STOP);
@@ -107,8 +108,7 @@ abstract class BaseCommand
         for ($i = 0; $i < $maxLoops; $i++) {
             $latestStatus = $this->getStatusFromFpp();
 
-            $fppStatusIdleId = 0;
-            if ($latestStatus->status === $fppStatusIdleId) {
+            if ($latestStatus->status === self::FPP_STATUS_IDLE_ID) {
                 break;
             }
 
@@ -129,7 +129,13 @@ abstract class BaseCommand
         return $this->httpRequest($url, $method, $data, $this->configuration->getTokenAsHeader());
     }
 
-    private function httpRequest($url, $method, $data, $headers = array())
+    protected function nwsHttpRequest($route)
+    {
+        $url = "https://api.weather.gov/" . $route;
+        return $this->httpRequest($url);
+    }
+
+    private function httpRequest($url, $method = "GET", $data = null, $headers = array())
     {
         array_push($headers, "Content-Type: application/json");
         array_push($headers, "Accept: application/json");
@@ -149,7 +155,7 @@ abstract class BaseCommand
 
         if ($response === false) {
             $message = "cURL error: " . curl_error($ch);
-            $this->logError($message, true);
+            throw new Exception($message);
         }
 
         curl_close($ch);
@@ -157,15 +163,11 @@ abstract class BaseCommand
         return json_decode($response, true);
     }
 
-    protected function logError($message, $throwException = false)
+    protected function logError($message)
     {
         $currentDateTime = date('Y-m-d h:i:s A');
         error_log("$currentDateTime: $message");
         echo $message;
-
-        if ($throwException) {
-            throw new Exception($message);
-        }
 
         return false;
     }
@@ -176,13 +178,10 @@ abstract class BaseCommand
         $contents = file_get_contents($configFile);
 
         if ($contents === false) {
-            $this->logError(
-                "Configuration file not found or unable to be loaded. Download configuration file contents from the Light Show Pulse website.",
-                true
-            );
+            throw new Exception("Configuration file not found or unable to be loaded. Download configuration file contents from the Light Show Pulse website.");
         }
 
-        return new ShowPulseConfigurationResponse($contents);
+        $this->configuration = new ShowPulseConfigurationResponse($contents);
     }
 
     protected function getStatusFromFpp()
@@ -190,45 +189,45 @@ abstract class BaseCommand
         return $this->fppHttpRequest("fppd/status");
     }
 
-    protected function postStatusToWebsite($fppStatus, $selectedSequence = null)
+    // protected function postStatusToWebsite($fppStatus, $selectedSequence = null, $latestWeather = null)
+    protected function postStatusToWebsite($statusRequestDto)
     {
-        $statusDto = new ShowPulseStatusRequest($fppStatus, $this->configuration->getShowId(), $selectedSequence);
-
+        // $statusDto = new ShowPulseStatusRequestDto($fppStatus, $this->configuration->getShowId(), $selectedSequence);
         return $this->webHttpRequest(
             "api/show-statuses/add/" . $this->configuration->getShowId(),
             "POST",
-            $statusDto,
+            $statusRequestDto, // $statusDto,
         );
     }
 
-    public function completed()
+    protected function completed()
     {
         echo "Done";
     }
 
     /**
      * Summary of getNextRequestFromWebsite
-     * @var ShowPulseApiResponseDto $responseDto
+     * @var ShowPulseResponseDto $responseDto
      * @return ShowPulseSelectionResponseDto|bool
      */
     private function getNextRequestedSelectionFromWebsite()
     {
         $responseDto = $this->webHttpRequest(
-            "api/requested-selections/next/" . $this->configuration->getShowId()
+            "api/requested-selections/view-next/" . $this->configuration->getShowId()
         );
 
-        return new ShowPulseSelectionResponseDto($responseDto);
+        return new ShowPulseResponseDto($responseDto);
     }
 
-    protected function requestedSelectionGetNext($fppStatus)
+    protected function getNextRequestedSelection($fppStatus)
     {
-        $selectionResponse = $this->getNextRequestedSelectionFromWebsite($this->configuration);
+        $selectionResponse = $this->getNextRequestedSelectionFromWebsite();
 
-        if ($selectionResponse === null) {
+        if ($selectionResponse->getData() === null) {
             $selectionResponse = $this->getRandomSelection();
         }
 
-        $this->postNextRequestedSelectionToFpp($selectionResponse, $fppStatus, $this->configuration);
+        $this->postNextRequestedSelectionToFpp($selectionResponse->getData(), $fppStatus, $this->configuration);
 
         return $selectionResponse;
     }
@@ -236,18 +235,36 @@ abstract class BaseCommand
     private function getRandomSelection()
     {
         $responseDto =  $this->webHttpRequest(
-            "api/selection-options/random/" . $this->configuration->getShowId(),
-            'PUT'
+            "api/selection-options/view-random/" . $this->configuration->getShowId()
         );
 
         return new ShowPulseSelectionResponseDto($responseDto);
     }
 
+    protected function getShow()
+    {
+        $response = $this->webHttpRequest("api/shows/view/" . $this->configuration->getShowId());
+        return new ShowPulseResponseDto($response);
+    }
+
+    protected function updateShow($data)
+    {
+        $response = $this->webHttpRequest(
+            "api/shows/edit/" . $this->configuration->getShowId(),
+            'PUT',
+            $data
+        );
+        return new ShowPulseResponseDto($response);
+    }
+
     protected function rejectSelectionRequests()
     {
-        $this->webHttpRequest(
-            "api/shows/reject-requests/" . $this->configuration->getShowId(),
-            'PUT'
-        );
+        $response = $this->getShow();
+
+        $show = $response->getData();
+        $show['accepting_requests_id'] = 1;
+
+        $response = $this->updateShow($show);
+        return $response;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Commands;
+namespace App;;
 
 use Exception;
 
@@ -11,21 +11,25 @@ final class SelectionOptionsAddCommand extends BaseCommand implements ShowPulseC
     public function execute()
     {
         try {
-            $selectionOptions = scandir("/home/fpp/media/sequences");
-            $playlistOptions = scandir("/home/fpp/media/playlists");
-
-            array_push($selectionOptions, $playlistOptions);
+            $selectionOptions = $this->getPlayablePlaylists();
 
             $this->webHttpRequest(
                 "api/selection-options/add/" . $this->configuration->getShowId(),
                 "PUT",
                 $selectionOptions
             );
-        } catch (Exception) {
+            $this->completed();
+        } catch (Exception $exception) {
+            $this->logError($exception->getMessage());
         }
+    }
+
+    private function getPlayablePlaylists()
+    {
+        $playlists  = $this->fppHttpRequest("api/playlists/playable");
+        return $playlists;
     }
 }
 
 $command  = new SelectionOptionsAddCommand();
 $command->execute();
-$command->completed();

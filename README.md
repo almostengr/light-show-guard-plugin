@@ -25,6 +25,9 @@ Open a terminal or command prompt window, and go to the plugin directory or othe
 composer require almostengr/show-pulse-fpp
 ```
 
+After installing the plugin, you should see "Light Show Pulse" commands on the "Run FPP Command" 
+dialog. If you do not see the commands, then restart FPPD or your show player.
+
 ## Setup
 
 See the [User Guide](#) for how to configure the plugin.

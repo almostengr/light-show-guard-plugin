@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Commands;
+namespace App;;
 
 use Exception;
 
@@ -15,11 +15,12 @@ final class RequestedSelectionsClearCommand extends BaseCommand implements ShowP
                 "api/requested-selections/clear/" . $this->configuration->getShowId(),
                 'PUT'
             );
-        } catch (Exception) {
+            $this->completed();
+        } catch (Exception $exception) {
+            $this->logError($exception->getMessage());
         }
     }
 }
 
 $command = new RequestedSelectionsClearCommand();
 $command->execute();
-$command->completed();
