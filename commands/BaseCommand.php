@@ -1,119 +1,22 @@
 <?php
 
-namespace App;;
+namespace App;
 
 use Exception;
+
+
+require_once 'ShowPulseResponseDto.php';
+require_once 'ShowPulseConfigurationResponse.php';
 
 abstract class BaseCommand
 {
     protected $configuration;
     protected const DAEMON_FILE = "/home/fpp/media/plugins/show-pulse-fpp/daemon.run";
-    protected const GRACEFUL_RESTART = "GRACEFUL RESTART";
-    protected const GRACEFUL_SHUTDOWN = "GRACEFUL SHUTDOWN";
-    protected const GRACEFUL_STOP = "GRACEFUL STOP";
-    protected const HIGH_PRIORITY = 10;
-    protected const IMMEDIATE_RESTART = "IMMEDIATE RESTART";
-    protected const IMMEDIATE_SHUTDOWN = "IMMEDIATE SHUTDOWN";
-    protected const IMMEDIATE_STOP = "IMMEDIATE STOP";
     protected const FPP_STATUS_IDLE_ID = 0;
 
     public function __construct()
     {
         $this->loadConfiguration();
-    }
-
-    /**
-     * @param ShowPulseSelectionResponseDto $selectionResponseDto
-     * @param mixed $fppStatus
-     */
-    protected function postNextRequestedSelectionToFpp($data, $fppStatus)
-    {
-        if (is_null($data)) {
-            return false;
-        }
-
-        switch ($data['playlist_name']) {
-            case self::IMMEDIATE_STOP:
-                $this->stopPlaylist();
-                $this->postStatusToWebsite($fppStatus, self::IMMEDIATE_STOP);
-                break;
-
-            case self::IMMEDIATE_RESTART:
-                $this->stopPlaylist();
-                $this->postStatusToWebsite($fppStatus, self::IMMEDIATE_RESTART);
-                $this->systemRestart();
-                break;
-
-            case self::IMMEDIATE_SHUTDOWN:
-                $this->stopPlaylist();
-                $this->postStatusToWebsite($fppStatus, self::IMMEDIATE_SHUTDOWN);
-                $this->systemShutdown();
-                break;
-
-            case self::GRACEFUL_STOP:
-                $this->gracefulStopPlaylist();
-                $this->postStatusToWebsite($fppStatus, self::GRACEFUL_STOP);
-                break;
-
-            case self::GRACEFUL_RESTART:
-                $this->gracefulStopPlaylist();
-                $this->postStatusToWebsite($fppStatus, self::GRACEFUL_RESTART);
-                $this->systemRestart();
-                break;
-
-            case self::GRACEFUL_SHUTDOWN:
-                $this->gracefulStopPlaylist();
-                $this->postStatusToWebsite($fppStatus, self::GRACEFUL_SHUTDOWN);
-                $this->systemShutdown();
-                break;
-
-            default:
-                $command = "Insert Playlist After Current";
-                if ($selectionResponseDto->getPriority() === self::HIGH_PRIORITY) {
-                    $command = "Insert Playlist Immediate";
-                }
-
-                $args = $command;
-                $data = array($selectionResponseDto->getSequenceFilename(), "-1", "-1", "false");
-                foreach ($data as $value) {
-                    $args .= "/$value";
-                }
-
-                $this->fppHttpRequest($args, "GET", $args);
-        }
-
-        return true;
-    }
-
-    private function systemRestart()
-    {
-        return $this->fppHttpRequest("system/restart");
-    }
-
-    private function systemShutdown()
-    {
-        return $this->fppHttpRequest("system/shutdown");
-    }
-
-    private function stopPlaylist()
-    {
-        return $this->fppHttpRequest("playlists/stop");
-    }
-
-    private function gracefulStopPlaylist()
-    {
-        $this->fppHttpRequest("playlists/stopgracefully");
-
-        $maxLoops = 180; // 180 = 5 seconds loops during 5 minutes
-        for ($i = 0; $i < $maxLoops; $i++) {
-            $latestStatus = $this->getStatusFromFpp();
-
-            if ($latestStatus->status === self::FPP_STATUS_IDLE_ID) {
-                break;
-            }
-
-            sleep(5);
-        }
     }
 
     protected function fppHttpRequest($route, $method = "GET", $data = null)
@@ -126,7 +29,8 @@ abstract class BaseCommand
     protected function webHttpRequest($route, $method = "GET", $data = null)
     {
         $url = $this->configuration->getWebsiteUrl()  . "/" . $route;
-        return $this->httpRequest($url, $method, $data, $this->configuration->getTokenAsHeader());
+        $response = $this->httpRequest($url, $method, $data, $this->configuration->getTokenAsHeader());
+        return new ShowPulseResponseDto($response);
     }
 
     protected function nwsHttpRequest($route)
@@ -205,46 +109,11 @@ abstract class BaseCommand
         echo "Done";
     }
 
-    /**
-     * Summary of getNextRequestFromWebsite
-     * @var ShowPulseResponseDto $responseDto
-     * @return ShowPulseSelectionResponseDto|bool
-     */
-    private function getNextRequestedSelectionFromWebsite()
-    {
-        $responseDto = $this->webHttpRequest(
-            "api/requested-selections/view-next/" . $this->configuration->getShowId()
-        );
-
-        return new ShowPulseResponseDto($responseDto);
-    }
-
-    protected function getNextRequestedSelection($fppStatus)
-    {
-        $selectionResponse = $this->getNextRequestedSelectionFromWebsite();
-
-        if ($selectionResponse->getData() === null) {
-            $selectionResponse = $this->getRandomSelection();
-        }
-
-        $this->postNextRequestedSelectionToFpp($selectionResponse->getData(), $fppStatus, $this->configuration);
-
-        return $selectionResponse;
-    }
-
-    private function getRandomSelection()
-    {
-        $responseDto =  $this->webHttpRequest(
-            "api/selection-options/view-random/" . $this->configuration->getShowId()
-        );
-
-        return new ShowPulseSelectionResponseDto($responseDto);
-    }
-
     protected function getShow()
     {
         $response = $this->webHttpRequest("api/shows/view/" . $this->configuration->getShowId());
-        return new ShowPulseResponseDto($response);
+        // return new ShowPulseResponseDto($response);
+        return $response;
     }
 
     protected function updateShow($data)
@@ -254,7 +123,8 @@ abstract class BaseCommand
             'PUT',
             $data
         );
-        return new ShowPulseResponseDto($response);
+        // return new ShowPulseResponseDto($response);
+        return $response;
     }
 
     protected function rejectSelectionRequests()
