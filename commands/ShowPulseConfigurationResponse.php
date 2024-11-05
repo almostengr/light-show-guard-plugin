@@ -4,7 +4,7 @@ namespace App;
 
 final class ShowPulseConfigurationResponse
 {
-    private $showId;
+    private $userId;
     private $token;
     private $host;
 
@@ -12,14 +12,14 @@ final class ShowPulseConfigurationResponse
     {
         $json = json_decode($contents, false);
 
-        $this->showId = $json->show_id;
+        $this->userId = $json->show_id;
         $this->token = $json->token;
         $this->host = $json->host;
     }
 
-    public function getShowId()
+    public function getUserId()
     {
-        return $this->showId;
+        return $this->userId;
     }
 
     public function getWebsiteUrl()

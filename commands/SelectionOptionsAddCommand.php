@@ -14,7 +14,7 @@ final class SelectionOptionsAddCommand extends BaseCommand implements ShowPulseC
             $selectionOptions = $this->getPlayablePlaylists();
 
             $this->webHttpRequest(
-                "api/selection-options/add/" . $this->configuration->getShowId(),
+                "api/selection-options/add/" . $this->configuration->getUserId(),
                 "PUT",
                 $selectionOptions
             );

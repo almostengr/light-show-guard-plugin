@@ -13,7 +13,7 @@ final class ShowsAcceptRequestsCommand extends BaseCommand implements ShowPulseC
         try {
             $response = $this->getShow();
             $show = $response->getData();
-            $show['accepting_requests_id'] = 2;
+            $show['selection_request_status_id'] = 2;
             $this->updateShow($show);
             $this->completed();
         } catch (Exception $exception) {

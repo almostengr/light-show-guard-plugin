@@ -96,9 +96,9 @@ abstract class BaseCommand
     // protected function postStatusToWebsite($fppStatus, $selectedSequence = null, $latestWeather = null)
     protected function postStatusToWebsite($statusRequestDto)
     {
-        // $statusDto = new ShowPulseStatusRequestDto($fppStatus, $this->configuration->getShowId(), $selectedSequence);
+        // $statusDto = new ShowPulseStatusRequestDto($fppStatus, $this->configuration->getUserId(), $selectedSequence);
         return $this->webHttpRequest(
-            "api/show-statuses/add/" . $this->configuration->getShowId(),
+            "api/show-statuses/add/" . $this->configuration->getUserId(),
             "POST",
             $statusRequestDto, // $statusDto,
         );
@@ -111,7 +111,7 @@ abstract class BaseCommand
 
     protected function getShow()
     {
-        $response = $this->webHttpRequest("api/shows/view/" . $this->configuration->getShowId());
+        $response = $this->webHttpRequest("api/shows/view/" . $this->configuration->getUserId());
         // return new ShowPulseResponseDto($response);
         return $response;
     }
@@ -119,7 +119,7 @@ abstract class BaseCommand
     protected function updateShow($data)
     {
         $response = $this->webHttpRequest(
-            "api/shows/edit/" . $this->configuration->getShowId(),
+            "api/shows/edit/" . $this->configuration->getUserId(),
             'PUT',
             $data
         );
@@ -132,7 +132,7 @@ abstract class BaseCommand
         $response = $this->getShow();
 
         $show = $response->getData();
-        $show['accepting_requests_id'] = 1;
+        $show['selection_request_status_id'] = 1;
 
         $response = $this->updateShow($show);
         return $response;

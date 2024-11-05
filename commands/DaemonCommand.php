@@ -66,7 +66,7 @@ final class DaemonCommand extends BaseCommand implements ShowPulseCommandInterfa
     private function getNextRequestedSelectionFromWebsite()
     {
         $responseDto = $this->webHttpRequest(
-            "api/requested-selections/view-next/" . $this->configuration->getShowId()
+            "api/requested-selections/view-next/" . $this->configuration->getUserId()
         );
 
         // return new ShowPulseResponseDto($responseDto);
@@ -76,7 +76,7 @@ final class DaemonCommand extends BaseCommand implements ShowPulseCommandInterfa
     private function getRandomSelection()
     {
         $responseDto = $this->webHttpRequest(
-            "api/selection-options/view-random/" . $this->configuration->getShowId()
+            "api/selection-options/view-random/" . $this->configuration->getUserId()
         );
 
         return $responseDto;

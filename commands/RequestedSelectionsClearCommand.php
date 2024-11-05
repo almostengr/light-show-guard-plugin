@@ -12,7 +12,7 @@ final class RequestedSelectionsClearCommand extends BaseCommand implements ShowP
     {
         try {
             $this->webHttpRequest(
-                "api/requested-selections/clear/" . $this->configuration->getShowId(),
+                "api/requested-selections/clear/" . $this->configuration->getUserId(),
                 'PUT'
             );
             $this->completed();
