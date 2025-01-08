@@ -69,7 +69,6 @@ final class DaemonCommand extends BaseCommand implements ShowPulseCommandInterfa
             "api/requested-selections/view-next/" . $this->configuration->getUserId()
         );
 
-        // return new ShowPulseResponseDto($responseDto);
         return $responseDto;
     }
 
@@ -80,7 +79,6 @@ final class DaemonCommand extends BaseCommand implements ShowPulseCommandInterfa
         );
 
         return $responseDto;
-        // return new ShowPulseResponseDto($responseDto);
     }
 
     /**
@@ -201,21 +199,18 @@ final class DaemonCommand extends BaseCommand implements ShowPulseCommandInterfa
                 $isPlayerFrozen = $this->checkPlayerFrozen($fppStatus);
 
                 if ($hasStatusUpdate) {
-                    $this->getCurrentWeather();
-                    // $this->postStatusToWebsite($fppStatus, null, $this->latestWeather);
+                    // $this->getCurrentWeather();
 
                     $statusDto = new ShowPulseStatusRequestDto($fppStatus);
-                    if ($this->latestWeather !== null) {
-                        $statusDto->setWeatherObservation($this->latestWeather);
-                    }
+                    // if ($this->latestWeather !== null) {
+                    //     $statusDto->setWeatherObservation($this->latestWeather);
+                    // }
 
                     $this->postStatusToWebsite($statusDto);
 
                     $this->lastSequence = $fppStatus->current_sequence;
                     $this->lastSong = $fppStatus->current_song;
                     $this->lastSecondsPlayed = $fppStatus->seconds_played;
-
-                    // $this->getNextRequestedSelection($fppStatus);
 
                     $selectionResponse = $this->getNextRequestedSelectionFromWebsite();
                     if ($selectionResponse->getData() === null) {

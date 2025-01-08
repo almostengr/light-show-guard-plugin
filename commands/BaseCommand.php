@@ -93,10 +93,8 @@ abstract class BaseCommand
         return $this->fppHttpRequest("fppd/status");
     }
 
-    // protected function postStatusToWebsite($fppStatus, $selectedSequence = null, $latestWeather = null)
     protected function postStatusToWebsite($statusRequestDto)
     {
-        // $statusDto = new ShowPulseStatusRequestDto($fppStatus, $this->configuration->getUserId(), $selectedSequence);
         return $this->webHttpRequest(
             "api/show-statuses/add/" . $this->configuration->getUserId(),
             "POST",
@@ -112,7 +110,6 @@ abstract class BaseCommand
     protected function getShow()
     {
         $response = $this->webHttpRequest("api/shows/view/" . $this->configuration->getUserId());
-        // return new ShowPulseResponseDto($response);
         return $response;
     }
 
@@ -123,7 +120,6 @@ abstract class BaseCommand
             'PUT',
             $data
         );
-        // return new ShowPulseResponseDto($response);
         return $response;
     }
 
